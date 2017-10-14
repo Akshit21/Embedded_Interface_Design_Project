@@ -67,22 +67,22 @@ def getData(self):
     return weatherData
 
 def getMessage(self,message):
-    messageReturn=''
+    messageReturn='\n'+message
     weatherData=getData(self)
     if message=='Last':
-        messageReturn = '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
+        messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
                         '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
                         '\nTime: '+ weatherData['Last']['Time']
     elif message=='Max':
-        messageReturn = '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
+        messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
                         '\nHumidity: '+weatherData['Max']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Max']['Time']
     elif message=='Min':
-        messageReturn = '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
+        messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
                         '\nHumidity: '+weatherData['Min']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Min']['Time']
     elif message=='Avg':
-        messageReturn = '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
+        messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
                         '\nHumidity: '+weatherData['Avg']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Avg']['Time']
     else:
@@ -111,9 +111,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
       
     def on_message(self, message):
         print ('message received:  %s' % message)
-        weatherData=''
-        while not weatherData:
-            weatherData = getMessage(self,message)
+        weatherData = getMessage(self,message)
         self.write_message(weatherData)
  
     def on_close(self):
