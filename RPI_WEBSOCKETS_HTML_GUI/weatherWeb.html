@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<h1><center>Project 2</h1>
+<h2><center>Temperature and Humidity Monitoring System</h2>
+<body style="background-color:powderblue;">
+    <div id="status">Connecting...</div>
+    <form id="message-form" action="#" method="post">
+	  <button type="button" id="close">Close Connection</button>
+	  <br><center><button type="button" id="avgtemp_button"><b>Average Temperature<b/></button></br>
+	  <br><center><button type="button" id="lasttemp_button"><b>Last value of temperature</b></button></br>
+	  <br><center><button type="button" id="maxtemp_button"><b>Maximum temperature value</b></button></br>
+	  <br><center><button type="button" id="mintemp_button"><b>Minimum temperature value</b></button></br>
+	  <br><center><button type="button" id="avghum_button"><b>Average Humidity</b></button></br>
+	  <br><center><button type="button" id="lasthum_button"><b>Last value of Humidity</b></button></br>
+	  <br><center><button type="button" id="maxhum_button"><b>Maximum humidity value</b></button></br>
+	  <br><center><button type="button" id="minhum_button"><b>Minimum humidity value</b></button></br>
+	  <br><center><textarea id = "text_box" placeholder="Click on a button for fetching the corresponding value" required rows="4" cols="60"></textarea></br>
+    </form>
+  </div>
+  <script src="websocket.js"></script>
+</body>
+</html>

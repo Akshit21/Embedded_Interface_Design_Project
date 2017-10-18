@@ -54,7 +54,6 @@ def getData(self):
             weatherData['Avg']['Temp']=self.worksheet.cell(10, 6).value
             weatherData['Avg']['Hum']=self.worksheet.cell(10, 7).value
             weatherData['Avg']['Time']=self.worksheet.cell(10, 8).value
-            print('\n Last Temp:' +weatherData['Last']['Temp'] )
             break
         except Exception as e:
             # Error appending data, most likely because credentials are stale.
@@ -69,42 +68,44 @@ def getData(self):
 def getMessage(self,message):
     messageReturn='\n'+message
     weatherData=getData(self)
-    if message=='Last':
+    print("Message:"+message)
+    #print("Data:"+str(getData))
+    if message=='LastTemp':
         messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
-                        '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
                         '\nTime: '+ weatherData['Last']['Time']
-    elif message=='Max':
+    elif message=='MaxTemp':
         messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
-                        '\nHumidity: '+weatherData['Max']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Max']['Time']
-    elif message=='Min':
+    elif message=='MinTemp':
         messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
-                        '\nHumidity: '+weatherData['Min']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Min']['Time']
-    elif message=='Avg':
+    elif message=='AvgTemp':
         messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
-                        '\nHumidity: '+weatherData['Avg']['Hum'] + ' %' + \
+                        '\nTime: '+ weatherData['Avg']['Time']
+    elif message=='LastHum':
+        messageReturn += '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
+                        '\nTime: '+ weatherData['Last']['Time']
+    elif message=='MaxHum':
+        messageReturn += '\nHumidity: '+weatherData['Max']['Hum'] + ' %' + \
+                        '\nTime: '+ weatherData['Max']['Time']
+    elif message=='MinHum':
+        messageReturn += '\nHumidity: '+weatherData['Min']['Hum'] + ' %' + \
+                        '\nTime: '+ weatherData['Min']['Time']
+    elif message=='AvgHum':
+        messageReturn +='\nHumidity: '+weatherData['Avg']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Avg']['Time']
     elif message=='CtoF':
         farenheit1 = ((9.0/5.0) * (float(weatherData['Last']['Temp']))) + 32.0
         farenheit2 = ((9.0/5.0) * (float(weatherData['Max']['Temp']))) + 32.0
         farenheit3 = ((9.0/5.0) * (float(weatherData['Min']['Temp']))) + 32.0
         farenheit4 = ((9.0/5.0) * (float(weatherData['Avg']['Temp']))) + 32.0
-        f1 = ((9.0/5.0) * (float(weatherData['Last']['Hum']))) + 32.0
-        f2 = ((9.0/5.0) * (float(weatherData['Max']['Hum']))) + 32.0
-        f3 = ((9.0/5.0) * (float(weatherData['Min']['Hum']))) + 32.0
-        f4 = ((9.0/5.0) * (float(weatherData['Avg']['Hum']))) + 32.0
         messageReturn +='\n Last Temp:' +str(farenheit1) + 'F' + \
-                        '\n Last Hum:' +str(f1) + 'F' + \
                         '\n Max Temp:' +str(farenheit2) + 'F' + \
-                        '\n Max Hum:' +str(f2) +'F' + \
                         '\n Min Temp:'  +str(farenheit3) + 'F' +\
-                        '\n Min Hum:' +str(f3) +'F' + \
-                        '\n Avg Temp:' +str(farenheit4) + 'F' + \
-                        '\n Avg Hum:' + str(f4) + 'F'
+                        '\n Avg Temp:' +str(farenheit4) + 'F'
 
     else:
-        messageReturn ='\nInvalid Message:Enter Last|Max|Min|Avg'
+        messageReturn ='Invalid Message'
     return messageReturn
 
 ####################################################
@@ -128,6 +129,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print ('message received:  %s' % message)
         weatherData = getMessage(self,message)
+        print("WeatherData:"+weatherData)
         self.write_message(weatherData)
 
     def on_close(self):

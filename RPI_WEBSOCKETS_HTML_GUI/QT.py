@@ -1,290 +1,227 @@
+# -*- coding: utf-8 -*-
+
+# Weather implementation generated from reading ui file 'Project2.ui'
+#
+# Created by: PyQt4 UI code generator 4.11.4
+#
+# WARNING! All changes made in this file will be lost!
+
+import json
 import sys
 import time
 import datetime
+
 import Adafruit_DHT
 import gspread
-from collections import defaultdict
 from oauth2client.service_account import ServiceAccountCredentials
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-from db_update import db
 
-def QT():
-    global t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18
-    ##### Creating an object for the application ################
-    app = QApplication(sys.argv)
-    ####### Declaring Tabs ########################################
-    tabs = QtGui.QTabWidget()
-    tab1 = QtGui.QWidget()
-    tab2 = QtGui.QWidget()
-    tabs.resize (1500, 1500)
-    ####### Setting a Window Title ################################
-    tabs.setWindowTitle("Temperature and Humidity")
-    ######  Creating Vertical Box layout for tab1  ################
-    vBoxlayout = QtGui.QVBoxLayout()
-    tab1.setLayout(vBoxlayout)
-    ####### Creating Vertical Box Layout for tab2  ################
-    vBoxlayout = QtGui.QVBoxLayout()
-    tab2.setLayout(vBoxlayout)
-    ######## Adding names for tab1 and tab2 ########################
-    tabs.addTab(tab1,"Temperature")
-    tabs.addTab(tab2,"Humidity")
-    ################### Creating buttons for tab1####################
-    button1 = QPushButton(tab1)
-    button2 = QPushButton(tab1)
-    button3 = QPushButton(tab1)
-    button4 = QPushButton(tab1)
-    button9 = QPushButton(tab1)
-    b1 = QPushButton(tab1)
-    b2 = QPushButton(tab1)
-    b3 = QPushButton(tab1)
-    b4 = QPushButton(tab1)
-    ################## Creating labels for tab1 ###################
-    t1 = QLabel(tab1)
-    t1.move(300,150)
-    t1.resize(250,60)
-    t2 = QLabel(tab1)
-    t2.move(300,350)
-    t2.resize(250,60)
-    t3 = QLabel(tab1)
-    t3.move(500,150)
-    t3.resize(250,60)
-    t4 = QLabel(tab1)
-    t4.move(500,350)
-    t4.resize(250,60)
-    t5 = QLabel(tab1)
-    t5.move(700,150)
-    t5.resize(250,60)
-    t6 = QLabel(tab1)
-    t6.move(700,350)
-    t6.resize(250,60)
-    t7 = QLabel(tab1)
-    t7.move(900,150)
-    t7.resize(250,60)
-    t8 = QLabel(tab1)
-    t8.move(900,350)
-    t8.resize(250,60)
-    t9 = QLabel(tab1)
-    t9.move(1200,300)
-    t9.resize(250,60)
-    #################    Creating labels for tab2 #####################
-    t10 = QLabel(tab2)
-    t10.move(300,150)
-    t10.resize(250,60)
-    t11 = QLabel(tab2)
-    t11.move(300,350)
-    t11.resize(250,60)
-    t12 = QLabel(tab2)
-    t12.move(500,150)
-    t12.resize(250,60)
-    t13 = QLabel(tab2)
-    t13.move(500,350)
-    t13.resize(250,60)
-    t14 = QLabel(tab2)
-    t14.move(700,150)
-    t14.resize(250,60)
-    t15 = QLabel(tab2)
-    t15.move(700,350)
-    t15.resize(250,60)
-    t16 = QLabel(tab2)
-    t16.move(900,150)
-    t16.resize(250,60)
-    t17 = QLabel(tab2)
-    t17.move(900,350)
-    t17.resize(250,60)
-    t18 = QLabel(tab2)
-    t18.move(1200,300)
-    t18.resize(250,60)
-    ################## Names of button1 ###########################
-    button1.setText("Last Temp")
-    button1.move(300,100)
-    b1.setText("Last Time")
-    b1.move(300,300)
-    ################### Button 2 #################################
-    button2.setText("Max Temp")
-    button2.move(500,100)
-    b2.setText(" Max Time")
-    b2.move(500,300)
-    ################## Button 3 #################################
-    button3.setText("Min Temp")
-    button3.move(700,100)
-    b3.setText("Min Time")
-    b3.move(700,300)
-    ################## Button 4 #################################
-    button4.setText("Average Temp")
-    button4.move(900,100)
-    b4.setText(" Avg Time")
-    b4.move(900,300)
-    ################## Button 9 #################################
-    button9.setText("C to F")
-    button9.move(1200,200)
-    ################### Creating buttons for tab2####################
-    button5 = QPushButton(tab2)
-    button6 = QPushButton(tab2)
-    button7 = QPushButton(tab2)
-    button8 = QPushButton(tab2)
-    button10 = QPushButton(tab2)
-    b5 = QPushButton(tab2)
-    b6 = QPushButton(tab2)
-    b7 = QPushButton(tab2)
-    b8 = QPushButton(tab2)
-    ################## Names of button1 ###########################
-    button5.setText("Last Humidity")
-    button5.move(300,100)
-    b5.setText("Last Time")
-    b5.move(300,300)
-    ################### Button 2 #################################
-    button6.setText("Max Humidity")
-    button6.move(500,100)
-    b6.setText("Max Time")
-    b6.move(500,300)
-    ################## Button 3 #################################
-    button7.setText("Min Humidity")
-    button7.move(700,100)
-    b7.setText("Min Time")
-    b7.move(700,300)
-    ################## Button 4 #################################
-    button8.setText("Avg Humidity")
-    button8.move(900,100)
-    b8.setText("Avg Time")
-    b8.move(900,300)
-    ################## Button 10 #################################
-    button10.setText("C to F")
-    button10.move(1200,200)
-    ############## Defining actions for buttons ##################
-    button1.clicked.connect(button1_clicked)
-    button2.clicked.connect(button2_clicked)
-    button3.clicked.connect(button3_clicked)
-    button4.clicked.connect(button4_clicked)
-    button5.clicked.connect(button5_clicked)
-    button6.clicked.connect(button6_clicked)
-    button7.clicked.connect(button7_clicked)
-    button8.clicked.connect(button8_clicked)
-    button9.clicked.connect(button9_clicked)
-    button10.clicked.connect(button10_clicked)
-    b1.clicked.connect(b1_clicked)
-    b2.clicked.connect(b2_clicked)
-    b3.clicked.connect(b3_clicked)
-    b4.clicked.connect(b4_clicked)
-    b5.clicked.connect(b5_clicked)
-    b6.clicked.connect(b6_clicked)
-    b7.clicked.connect(b7_clicked)
-    b8.clicked.connect(b8_clicked)
-    tabs.show()
+from PyQt4 import QtCore, QtGui
+
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
+# Type of sensor, can be Adafruit_DHT.DHT11, Adafruit_DHT.DHT22, or Adafruit_DHT.AM2302.
+DHT_TYPE = Adafruit_DHT.DHT22
+
+# GPIO PIN connection to Raspberry Pi
+DHT_PIN  = 4
+
+# JSON file contaning login info (should be in same dir as this file)
+GDOCS_OAUTH_JSON = 'googleSheetAuth.json'
+
+# Google Docs spreadsheet name.
+GDOCS_SPREADSHEET_NAME = 'EID'
+
+# How long to wait (in seconds) between measurements.
+WAIT_SECONDS = 3
+
+# Method to get login credentials and open the spread sheet
+def login_open_sheet(oauth_key_file, spreadsheet):
+    try:
+        scope =  ['https://spreadsheets.google.com/feeds']
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(oauth_key_file, scope)
+        gc = gspread.authorize(credentials)
+        worksheet = gc.open(spreadsheet).sheet1
+        return worksheet
+    except Exception as ex:
+        print('Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name,' +
+                'and make sure spreadsheet is shared to the client_email address in the OAuth .json file!')
+        print('Google sheet login failed with error:', ex)
+        sys.exit(1)    
+
+class Ui_Weather(QtGui.QWidget):
+    def __init__(self):
+        super(Ui_Weather,self).__init__()
+        self.tempList=[]
+        self.humidityList=[]
+        self.worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
+        self.count=2
+        self.flag=True
+        self.setupUi(self)
+        
+    def setupUi(self, Weather):
+        Weather.setObjectName(_fromUtf8("Weather"))
+        Weather.resize(836, 580)
+        #Weather.setStyleSheet(_fromUtf8("background: url(/home/pi/EID/Embedded_Interface_Design_Project/RPI_WEBSOCKETS_HTML_GUI/weather.jpg)"+\
+        #                         "; background-attachment: fixed; background-repeat: no-repeat"))
+        self.tempDisplay = QtGui.QTextEdit(Weather)
+        self.tempDisplay.setGeometry(QtCore.QRect(90, 150, 271, 291))
+        self.tempDisplay.setObjectName(_fromUtf8("tempDisplay"))
+        self.humidityDisplay = QtGui.QTextEdit(Weather)
+        self.humidityDisplay.setGeometry(QtCore.QRect(480, 150, 281, 291))
+        self.humidityDisplay.setObjectName(_fromUtf8("humidityDisplay"))
+        self.tempLabel = QtGui.QLabel(Weather)
+        self.tempLabel.setGeometry(QtCore.QRect(190, 120, 101, 20))
+        self.tempLabel.setObjectName(_fromUtf8("tempLabel"))
+        self.humLabel = QtGui.QLabel(Weather)
+        self.humLabel.setGeometry(QtCore.QRect(590, 120, 101, 16))
+        self.humLabel.setObjectName(_fromUtf8("humLabel"))
+        self.mainLabel = QtGui.QLabel(Weather)
+        self.mainLabel.setGeometry(QtCore.QRect(170, 50, 491, 51))
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Segoe Script"))
+        font.setPointSize(20)
+        self.mainLabel.setFont(font)
+        self.mainLabel.setObjectName(_fromUtf8("mainLabel"))
+        self.c2fButton = QtGui.QPushButton(Weather)
+        self.c2fButton.setGeometry(QtCore.QRect(90, 460, 93, 28))
+        self.c2fButton.setObjectName(_fromUtf8("c2fButton"))
+        self.f2cButton = QtGui.QPushButton(Weather)
+        self.f2cButton.setGeometry(QtCore.QRect(260, 460, 93, 28))
+        self.f2cButton.setObjectName(_fromUtf8("f2cButton"))
+        self.errorTextEdit = QtGui.QTextEdit(Weather)
+        self.errorTextEdit.setGeometry(QtCore.QRect(480, 470, 281, 87))
+        self.errorTextEdit.setObjectName(_fromUtf8("errorTextEdit"))
+        self.errorLabel = QtGui.QLabel(Weather)
+        self.errorLabel.setGeometry(QtCore.QRect(420, 490, 55, 16))
+        self.errorLabel.setObjectName(_fromUtf8("errorLabel"))
+
+        self.retranslateUi(Weather)
+        QtCore.QMetaObject.connectSlotsByName(Weather)
+
+    def retranslateUi(self, Weather):
+        Weather.setWindowTitle(_translate("Weather", "Weather", None))
+        self.tempLabel.setText(_translate("Weather", "Temperature", None))
+        self.humLabel.setText(_translate("Weather", "Humidity", None))
+        self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
+        self.c2fButton.setText(_translate("Weather", "C to F", None))
+        self.f2cButton.setText(_translate("Weather", "F to C", None))
+        self.errorLabel.setText(_translate("Weather", "Error", None))
+        self.my_timer = QtCore.QTimer()
+        self.my_timer.timeout.connect(self.saveData)
+        self.my_timer.start(WAIT_SECONDS*1000)
+        self.f2cButton.clicked.connect(self.updateFlagFalse)
+        self.c2fButton.clicked.connect(self.updateFlagTrue)
+    
+    def updateFlagFalse(self):
+        self.flag=False
+    
+    def updateFlagTrue(self):
+        self.flag=True
+        
+    def getData(self):
+        while True:
+            # Attempt to get sensor reading
+            humidity, temp = Adafruit_DHT.read(DHT_TYPE, DHT_PIN)
+            # Check if recieved valid measurements.
+            # If not Try again till you get valid measurements
+            if humidity is None or temp is None:
+                print ("Error:Couldn't grab data properly\nTrying Again!!")
+                self.errorTextEdit.setText(_translate("Weather", "Error:Couldn't grab data properly\nTrying Again!!", None))
+                continue
+            break
+        self.temp=round(float(temp),2)
+        self.humidity=round(float(humidity),2)
+        self.tempList.append(temp)
+        self.humidityList.append(humidity)
+        self.timeVal=datetime.datetime.now()
+    
+    def saveData(self):
+        if self.worksheet is None:
+            self.worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
+        while True:
+            self.getData()
+            self.maxTemp=round(max(self.tempList),2)
+            self.minTemp=round(min(self.tempList),2)
+            self.avgTemp=round((sum(self.tempList)/len(self.tempList)),2)
+            self.maxHum=round(max(self.humidityList),2)
+            self.minHum=round(min(self.humidityList),2)
+            self.avgHum=round((sum(self.humidityList)/len(self.humidityList)),2)
+            try:
+                #Keep on storing the values
+                self.worksheet.update_cell(self.count, 1, self.timeVal)
+                self.worksheet.update_cell(self.count, 2, self.temp)
+                self.worksheet.update_cell(self.count, 3, self.humidity)
+                #Max Values
+                self.worksheet.update_cell(4,6,self.maxTemp)
+                self.worksheet.update_cell(4,7,self.maxHum)
+                self.worksheet.update_cell(4,8,self.timeVal)
+                #Min Values
+                self.worksheet.update_cell(6,6,self.minTemp)
+                self.worksheet.update_cell(6,7,self.minHum)
+                self.worksheet.update_cell(6,8,self.timeVal)
+                #Last Values
+                self.worksheet.update_cell(8,6,self.temp)
+                self.worksheet.update_cell(8,7,self.humidity)
+                self.worksheet.update_cell(8,8,self.timeVal)
+                #Avg Values
+                self.worksheet.update_cell(10,6,self.avgTemp)
+                self.worksheet.update_cell(10,7,self.avgHum)
+                self.worksheet.update_cell(10,8,self.timeVal)
+                #Increment the cell
+                self.count+=1
+                print("Updated Data on Google Sheet")
+                #Update on GUI
+                if self.flag :
+                    self.tempDisplay.setText(_translate("Weather", \
+                                                        "Last: "+str(self.temp)+ " C\nTime:" + str(self.timeVal) + \
+                                                        "\n\nMax: "+str(self.maxTemp)+ " C\nTime:" + str(self.timeVal) + \
+                                                        "\n\nMin: "+str(self.minTemp)+ " C\nTime: " + str(self.timeVal) + \
+                                                        "\n\nAvg: "+str(self.avgTemp)+ " C\nTime: " + str(self.timeVal) \
+                                                        , None))
+                else :
+                    self.tempDisplay.setText(_translate("Weather", \
+                                                        "Last: "+str(round((9.0/5.0) * self.temp + 32.0,2))+ " F\nTime:" + str(self.timeVal) + \
+                                                        "\n\nMax: "+str(round((9.0/5.0) * self.maxTemp + 32.0,2))+ " F\nTime:" + str(self.timeVal) + \
+                                                        "\n\nMin: "+str(round((9.0/5.0) * self.minTemp + 32.0,2))+ " F\nTime:" + str(self.timeVal) + \
+                                                        "\n\nAvg: "+str(round((9.0/5.0) * self.avgTemp + 32.0,2))+ " F\nTime:" + str(self.timeVal) \
+                                                        , None))
+                self.humidityDisplay.setText(_translate("Weather", \
+                                                    'Last: '+str(self.humidity)+ ' %\nTime:' + str(self.timeVal) + \
+                                                    '\n\nMax: '+str(self.maxHum)+ ' %\nTime:' + str(self.timeVal) + \
+                                                    '\n\nMin: '+str(self.minHum)+ ' %\nTime:' + str(self.timeVal) + \
+                                                    '\n\nAvg: '+str(self.avgHum)+ ' %\nTime:' + str(self.timeVal) \
+                                                    , None))
+                self.errorTextEdit.setText(_translate("Weather", '', None))
+                
+            except Exception as e:
+                # Error appending data, most likely because credentials are stale.
+                # Null out the self.worksheet so a login is performed at the top of the loop.
+                print("Error:" + str(e))
+                print('Trying to Login again. Check connections!!')
+                self.errorTextEdit.setText(_translate("Weather", str(e), None))
+                self.worksheet = None
+                time.sleep(WAIT_SECONDS)
+                continue
+            break
+    
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    weatherGui = QtGui.QWidget()
+    ui = Ui_Weather()
+    ui.setupUi(weatherGui)
+    weatherGui.show()
     sys.exit(app.exec_())
-
-def button1_clicked():
-    print('Button1 is clicked')
-    q = db()
-    weatherData = q.login_open_sheet('eidproject.json','EID')
-    t1.setText(str(weatherData['Last']['Temp']))
-    print('Display')
-def button2_clicked():
-    print('Button2 is clicked')
-    q = db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t3.setText(str(weatherData['Max']['Temp']))
-def button3_clicked():
-    print('Button3 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t5.setText(str(weatherData['Min']['Temp']))
-def button4_clicked():
-    print('Button4 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t7.setText(str(weatherData['Avg']['Temp']))
-def button5_clicked():
-    print('Button5 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t10.setText(str(weatherData['Last']['Hum']))
-def button6_clicked():
-    print('Button6 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t12.setText(str(weatherData['Max']['Hum']))
-def button7_clicked():
-    print('Button7 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t14.setText(str(weatherData['Min']['Hum']))
-def button8_clicked():
-    print('Button8 is clicked')
-    q = db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t16.setText(str(weatherData['Avg']['Hum']))
-def button9_clicked():
-    print('Button9 is clicked')
-    q =db()
-    weatherData = q.login_open_sheet('eidproject.json','EID')
-    farenheit1 = ((9.0/5.0) * (float(weatherData['Last']['Temp']))) + 32.0
-    farenheit2 = ((9.0/5.0) * (float(weatherData['Max']['Temp']))) + 32.0
-    farenheit3 = ((9.0/5.0) * (float(weatherData['Min']['Temp']))) + 32.0
-    farenheit4 = ((9.0/5.0) * (float(weatherData['Avg']['Temp']))) + 32.0
-    t1.setText(str(farenheit1))
-    t3.setText(str(farenheit2))
-    t5.setText(str(farenheit3))
-    t7.setText(str(farenheit4))
-def button10_clicked():
-    print('Button10 is clicked')
-    q =db()
-    weatherData = q.login_open_sheet('eidproject.json','EID')
-    farenheit1 = ((9.0/5.0) * (float(weatherData['Last']['Hum']))) + 32.0
-    farenheit2 = ((9.0/5.0) * (float(weatherData['Max']['Hum']))) + 32.0
-    farenheit3 = ((9.0/5.0) * (float(weatherData['Min']['Hum']))) + 32.0
-    farenheit4 = ((9.0/5.0) * (float(weatherData['Avg']['Hum']))) + 32.0
-    t10.setText(str(farenheit1))
-    t12.setText(str(farenheit2))
-    t14.setText(str(farenheit3))
-    t16.setText(str(farenheit4))
-
-
-def b1_clicked():
-    print('b1 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t2.setText(str(weatherData['Last']['Time']))
-def b2_clicked():
-    print('b2 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t4.setText(str(weatherData['Max']['Time']))
-def b3_clicked():
-    print('b3 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t6.setText(str(weatherData['Min']['Time']))
-def b4_clicked():
-    print('b4 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t8.setText(str(weatherData['Avg']['Time']))
-def b5_clicked():
-    print('b5 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t11.setText(str(weatherData['Last']['Time']))
-def b6_clicked():
-    print('b6 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t13.setText(str(weatherData['Max']['Time']))
-def b7_clicked():
-    print('b7 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t15.setText(str(weatherData['Min']['Time']))
-def b8_clicked():
-    print('b8 is clicked')
-    q =db()
-    weatherData =q.login_open_sheet('eidproject.json','EID')
-    t17.setText(str(weatherData['Avg']['Time']))
-
-
-def main():
-    QT()
-
-if __name__ == '__main__':
-    main()
