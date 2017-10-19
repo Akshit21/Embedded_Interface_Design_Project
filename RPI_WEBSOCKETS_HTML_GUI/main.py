@@ -125,9 +125,11 @@ class Ui_Weather(QtGui.QWidget):
         self.c2fButton.clicked.connect(self.updateFlagTrue)
     
     def updateFlagFalse(self):
+        self.worksheet.update_cell(14,7,'F')
         self.flag=False
     
     def updateFlagTrue(self):
+        self.worksheet.update_cell(14,7,'C')
         self.flag=True
         
     def getData(self):

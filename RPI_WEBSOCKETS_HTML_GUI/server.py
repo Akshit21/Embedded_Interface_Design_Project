@@ -56,6 +56,8 @@ def getData(self):
             weatherData['Avg']['Temp']=self.worksheet.cell(10, 6).value
             weatherData['Avg']['Hum']=self.worksheet.cell(10, 7).value
             weatherData['Avg']['Time']=self.worksheet.cell(10, 8).value
+            #Check if C or F
+            weatherData['Unit']=self.worksheet.cell(14,7).value
             break
         except Exception as e:
             # Error appending data, most likely because credentials are stale.
@@ -73,17 +75,33 @@ def getMessage(self,message):
     print("Message:"+message)
     #print("Data:"+str(getData))
     if message=='LastTemp':
-        messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
-                        '\nTime: '+ weatherData['Last']['Time']
+        if weatherData['Unit']=='F':
+            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Last']['Temp']) + 32.0,2))+ \
+                            ' F' + '\nTime: '+ weatherData['Last']['Time']
+        else:
+            messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
+                            '\nTime: '+ weatherData['Last']['Time']
     elif message=='MaxTemp':
-        messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
-                        '\nTime: '+ weatherData['Max']['Time']
+        if weatherData['Unit']=='F':
+            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Max']['Temp']) + 32.0,2))+ \
+                            ' F' + '\nTime: '+ weatherData['Max']['Time']
+        else:
+            messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
+                            '\nTime: '+ weatherData['Max']['Time']
     elif message=='MinTemp':
-        messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
-                        '\nTime: '+ weatherData['Min']['Time']
+        if weatherData['Unit']=='F':
+            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Min']['Temp']) + 32.0,2))+ \
+                            ' F' + '\nTime: '+ weatherData['Min']['Time']
+        else:
+            messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
+                            '\nTime: '+ weatherData['Min']['Time']
     elif message=='AvgTemp':
-        messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
-                        '\nTime: '+ weatherData['Avg']['Time']
+        if weatherData['Unit']=='F':
+            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Avg']['Temp']) + 32.0,2))+ \
+                            ' F' + '\nTime: '+ weatherData['Avg']['Time']
+        else:
+            messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
+                            '\nTime: '+ weatherData['Avg']['Time']
     elif message=='LastHum':
         messageReturn += '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
                         '\nTime: '+ weatherData['Last']['Time']
