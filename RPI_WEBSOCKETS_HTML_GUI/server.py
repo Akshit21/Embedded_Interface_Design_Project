@@ -10,7 +10,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 
 # JSON file contaning login info (should be in same dir as this file)
-GDOCS_OAUTH_JSON       = 'eidproject.json'
+GDOCS_OAUTH_JSON       = 'googleSheetAuth.json'
 
 # Google Docs spreadsheet name.
 GDOCS_SPREADSHEET_NAME = 'EID'
@@ -20,18 +20,20 @@ WAIT_SECONDS      = 5
 
 # Method to get login credentials and open the spread sheet
 def login_open_sheet(oauth_key_file, spreadsheet):
-    try:
-        scope =  ['https://spreadsheets.google.com/feeds']
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(oauth_key_file, scope)
-        gc = gspread.authorize(credentials)
-        worksheet = gc.open(spreadsheet).sheet1
-        return worksheet
-    except Exception as ex:
-        print('Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name,' +
-                'and make sure spreadsheet is shared to the client_email address in the OAuth .json file!')
-        print('Google sheet login failed with error:', ex)
-        sys.exit(1)
-
+    while(1):
+        try:
+            scope =  ['https://spreadsheets.google.com/feeds']
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(oauth_key_file, scope)
+            gc = gspread.authorize(credentials)
+            worksheet = gc.open(spreadsheet).sheet1
+            break
+        except Exception as ex:
+            print('Unable to login and get spreadsheet.  Check OAuth credentials, spreadsheet name,' +
+                    'and make sure spreadsheet is shared to the client_email address in the OAuth .json file!')
+            print('Google sheet login failed with error:', ex)
+            print("Trying again")
+            time.sleep(WAIT_SECONDS)
+    return worksheet
 
 def getData(self):
     from collections import defaultdict
