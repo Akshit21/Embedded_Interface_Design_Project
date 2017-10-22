@@ -10,7 +10,7 @@ import json
 import sys
 import time
 import datetime
-
+import matplotlib.pyplot as plt
 import Adafruit_DHT
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -65,6 +65,7 @@ class Ui_Weather(QtGui.QWidget):
         super(Ui_Weather,self).__init__()
         self.tempList=[]
         self.humidityList=[]
+        self.timeList=[]
         self.worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
         self.count=2
         self.flag=True
@@ -72,57 +73,66 @@ class Ui_Weather(QtGui.QWidget):
         
     def setupUi(self, Weather):
         Weather.setObjectName(_fromUtf8("Weather"))
-        Weather.resize(836, 580)
-        #Weather.setStyleSheet(_fromUtf8("background: url(/home/pi/EID/Embedded_Interface_Design_Project/RPI_WEBSOCKETS_HTML_GUI/weather.jpg)"+\
-        #                         "; background-attachment: fixed; background-repeat: no-repeat"))
-        self.tempDisplay = QtGui.QTextEdit(Weather)
-        self.tempDisplay.setGeometry(QtCore.QRect(90, 150, 271, 291))
-        self.tempDisplay.setObjectName(_fromUtf8("tempDisplay"))
-        self.humidityDisplay = QtGui.QTextEdit(Weather)
-        self.humidityDisplay.setGeometry(QtCore.QRect(480, 150, 281, 291))
-        self.humidityDisplay.setObjectName(_fromUtf8("humidityDisplay"))
-        self.tempLabel = QtGui.QLabel(Weather)
-        self.tempLabel.setGeometry(QtCore.QRect(190, 120, 101, 20))
-        self.tempLabel.setObjectName(_fromUtf8("tempLabel"))
-        self.humLabel = QtGui.QLabel(Weather)
-        self.humLabel.setGeometry(QtCore.QRect(590, 120, 101, 16))
-        self.humLabel.setObjectName(_fromUtf8("humLabel"))
+        Weather.resize(600, 600)
+        self.verticalLayout = QtGui.QVBoxLayout(Weather)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.mainLabel = QtGui.QLabel(Weather)
-        self.mainLabel.setGeometry(QtCore.QRect(170, 50, 491, 51))
         font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Segoe Script"))
-        font.setPointSize(20)
+        font.setFamily(_fromUtf8("Sitka Text"))
+        font.setPointSize(18)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(50)
         self.mainLabel.setFont(font)
+        self.mainLabel.setStyleSheet(_fromUtf8("font: 18pt \"Sitka Text\";"))
         self.mainLabel.setObjectName(_fromUtf8("mainLabel"))
-        self.c2fButton = QtGui.QPushButton(Weather)
-        self.c2fButton.setGeometry(QtCore.QRect(90, 460, 93, 28))
-        self.c2fButton.setObjectName(_fromUtf8("c2fButton"))
+        self.verticalLayout.addWidget(self.mainLabel, QtCore.Qt.AlignHCenter)
+        self.humLabel = QtGui.QLabel(Weather)
+        self.humLabel.setObjectName(_fromUtf8("humLabel"))
+        self.verticalLayout.addWidget(self.humLabel)
+        self.humidityDisplay = QtGui.QTextBrowser(Weather)
+        self.humidityDisplay.setObjectName(_fromUtf8("humidityDisplay"))
+        self.verticalLayout.addWidget(self.humidityDisplay)
+        self.tempLabel = QtGui.QLabel(Weather)
+        self.tempLabel.setObjectName(_fromUtf8("tempLabel"))
+        self.verticalLayout.addWidget(self.tempLabel)
+        self.tempDisplay = QtGui.QTextBrowser(Weather)
+        self.tempDisplay.setObjectName(_fromUtf8("tempDisplay"))
+        self.verticalLayout.addWidget(self.tempDisplay)
         self.f2cButton = QtGui.QPushButton(Weather)
-        self.f2cButton.setGeometry(QtCore.QRect(260, 460, 93, 28))
         self.f2cButton.setObjectName(_fromUtf8("f2cButton"))
-        self.errorTextEdit = QtGui.QTextEdit(Weather)
-        self.errorTextEdit.setGeometry(QtCore.QRect(480, 470, 281, 87))
-        self.errorTextEdit.setObjectName(_fromUtf8("errorTextEdit"))
+        self.verticalLayout.addWidget(self.f2cButton)
+        self.c2fButton = QtGui.QPushButton(Weather)
+        self.c2fButton.setObjectName(_fromUtf8("c2fButton"))
+        self.verticalLayout.addWidget(self.c2fButton)
+        self.graphButton = QtGui.QPushButton(Weather)
+        self.graphButton.setObjectName(_fromUtf8("graphButton"))
+        self.verticalLayout.addWidget(self.graphButton)
         self.errorLabel = QtGui.QLabel(Weather)
-        self.errorLabel.setGeometry(QtCore.QRect(420, 490, 55, 16))
         self.errorLabel.setObjectName(_fromUtf8("errorLabel"))
+        self.verticalLayout.addWidget(self.errorLabel)
+        self.errorDisplay = QtGui.QTextBrowser(Weather)
+        self.errorDisplay.setObjectName(_fromUtf8("errorDisplay"))
+        self.verticalLayout.addWidget(self.errorDisplay)
 
         self.retranslateUi(Weather)
         QtCore.QMetaObject.connectSlotsByName(Weather)
 
     def retranslateUi(self, Weather):
         Weather.setWindowTitle(_translate("Weather", "Weather", None))
-        self.tempLabel.setText(_translate("Weather", "Temperature", None))
-        self.humLabel.setText(_translate("Weather", "Humidity", None))
         self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
-        self.c2fButton.setText(_translate("Weather", "C to F", None))
+        self.humLabel.setText(_translate("Weather", "Humidity", None))
+        self.tempLabel.setText(_translate("Weather", "Temperature", None))
         self.f2cButton.setText(_translate("Weather", "F to C", None))
+        self.c2fButton.setText(_translate("Weather", "C to F", None))
+        self.graphButton.setText(_translate("Weather", "Plot Graph", None))
         self.errorLabel.setText(_translate("Weather", "Error", None))
         self.my_timer = QtCore.QTimer()
         self.my_timer.timeout.connect(self.saveData)
         self.my_timer.start(WAIT_SECONDS*1000)
-        self.f2cButton.clicked.connect(self.updateFlagFalse)
-        self.c2fButton.clicked.connect(self.updateFlagTrue)
+        self.c2fButton.clicked.connect(self.updateFlagFalse)
+        self.f2cButton.clicked.connect(self.updateFlagTrue)
+        self.graphButton.clicked.connect(self.plotGraph)
     
     def updateFlagFalse(self):
         self.worksheet.update_cell(14,7,'F')
@@ -131,6 +141,21 @@ class Ui_Weather(QtGui.QWidget):
     def updateFlagTrue(self):
         self.worksheet.update_cell(14,7,'C')
         self.flag=True
+    
+    def plotGraph(self):
+	# Graph plotting
+        plt.subplot(2,1,1)
+        plt.plot(self.timeList,self.tempList)
+        plt.xlabel('Time (sec)')
+        plt.ylabel('Temp (C)')
+        plt.title('Temperature Variance')
+        plt.subplot(2,1,2)
+        plt.plot(self.timeList,self.humidityList)
+        plt.xlabel('Time (sec)')
+        plt.ylabel('Humidity (%)')
+        plt.title('Humidity Variance')
+        plt.tight_layout()
+        plt.show()
         
     def getData(self):
         while True:
@@ -139,8 +164,11 @@ class Ui_Weather(QtGui.QWidget):
             # Check if recieved valid measurements.
             # If not Try again till you get valid measurements
             if humidity is None or temp is None:
+                self.errorDisplay.setText(_translate("Weather", "Error:Couldn't grab data properly @ "\
+                                                     +str(datetime.datetime.now())+"\nTrying Again!!", None))
+                self.tempDisplay.setText(_translate("Weather", " ", None))
+                self.humidityDisplay.setText(_translate("Weather", " ", None))
                 print ("Error:Couldn't grab data properly\nTrying Again!!")
-                self.errorTextEdit.setText(_translate("Weather", "Error:Couldn't grab data properly\nTrying Again!!", None))
                 continue
             break
         self.temp=round(float(temp),2)
@@ -148,6 +176,8 @@ class Ui_Weather(QtGui.QWidget):
         self.tempList.append(temp)
         self.humidityList.append(humidity)
         self.timeVal=datetime.datetime.now()
+        self.timeNow=time.time()
+        self.timeList.append(self.timeNow)
     
     def saveData(self):
         if self.worksheet is None:
@@ -205,14 +235,15 @@ class Ui_Weather(QtGui.QWidget):
                                                     '\n\nMin: '+str(self.minHum)+ ' %\nTime:' + str(self.timeVal) + \
                                                     '\n\nAvg: '+str(self.avgHum)+ ' %\nTime:' + str(self.timeVal) \
                                                     , None))
-                self.errorTextEdit.setText(_translate("Weather", '', None))
                 
             except Exception as e:
                 # Error appending data, most likely because credentials are stale.
                 # Null out the self.worksheet so a login is performed at the top of the loop.
                 print("Error:" + str(e))
                 print('Trying to Login again. Check connections!!')
-                self.errorTextEdit.setText(_translate("Weather", str(e), None))
+                self.errorDisplay.setText(_translate("Weather", str(e), None))
+                self.tempDisplay.setText(_translate("Weather", " ", None))
+                self.humidityDisplay.setText(_translate("Weather", " ", None))
                 self.worksheet = None
                 time.sleep(WAIT_SECONDS)
                 continue
