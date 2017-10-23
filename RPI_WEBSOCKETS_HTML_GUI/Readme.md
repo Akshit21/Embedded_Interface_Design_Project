@@ -41,18 +41,25 @@ Websocket: http://blog.teamtreehouse.com/an-introduction-to-websockets
 4. googleSheetAuth.json ==> Google Sheet authentication information
 5. websocket.js ==> websocket javascript for client to run websocket and ping server for data
 6. websocketWeb.html ==> web page gui
-7. Readme.md
+7. login_html==> web page for authentication
+8. login.js ==> websocket javascript for client used for login to server
+9. Readme.md
 
 ## This GUI has below capabilities
   ### *Required*:
-	@Todo
+	Created Server Using Tornado websocket
+	Created Client using .js and html
+	Server also has QT interface to display the data
+	Server has data base as google spreadsheet where it constantly updates it
+	Client can request the data from server through websocket
   
   ### *Extra Credits*:
-	@Todo
+	Created secure login authentication
+	Display graph on the client side
 	
 ## Run the code 
 ```
 1. python3 main.py && python3 server.py
-2. open websocketWeb
+2. open login_webSocket
 ```
 
