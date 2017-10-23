@@ -42,7 +42,7 @@ Websocket: http://blog.teamtreehouse.com/an-introduction-to-websockets
 5. websocket.js ==> websocket javascript for client to run websocket and ping server for data
 6. websocketWeb.html ==> web page gui
 7. login_html==> web page for authentication
-8. login.js ==> websocket javascript for client used for login to server
+8. login_app.js ==> websocket javascript for client used for login to server
 9. Readme.md
 
 ## This GUI has below capabilities
