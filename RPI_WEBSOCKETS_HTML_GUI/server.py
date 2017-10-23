@@ -148,9 +148,16 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         print ('new connection')
     def on_message(self, message):
         print ('message received:  %s' % message)
-        weatherData = getMessage(self,message)
-        print("WeatherData:"+weatherData)
-        self.write_message(weatherData)
+        if "login" in message:
+            validate=message.split(" ")
+            if validate[1]== 'Weather' and validate[2]=='Rpi3':
+                self.write_message('OK')
+            else:
+                self.write_message('NOT')
+        else:
+            weatherData = getMessage(self,message)
+            print("WeatherData:"+weatherData)
+            self.write_message(weatherData)
 
     def on_close(self):
         print ('connection closed')
@@ -158,6 +165,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     def check_origin(self, origin):
         return True
 
+    	
 application = tornado.web.Application([
     (r'/ws', WSHandler),
 ])

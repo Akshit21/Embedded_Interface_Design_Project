@@ -156,6 +156,7 @@ class Ui_Weather(QtGui.QWidget):
         plt.title('Humidity Variance')
         plt.tight_layout()
         plt.show()
+        plt.savefig('graph.png',bbox_inches='tight')
         
     def getData(self):
         while True:

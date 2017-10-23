@@ -19,7 +19,7 @@ window.onload = function() {
    
   // Create a new WebSocket.
   // (IP Address of the Server Pi is passed as the url)
-  var socket = new WebSocket('ws://127.0.1.1:8888/ws');
+  var socket = new WebSocket('ws://10.0.0.17:8888/ws');
 
   // Handle and log any errors that occur.
   socket.onerror = function(error) {
