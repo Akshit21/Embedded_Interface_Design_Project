@@ -4,9 +4,10 @@
 
 import json
 import sys
-
+import socket
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+
 
 
 # JSON file contaning login info (should be in same dir as this file)
@@ -34,7 +35,7 @@ def login_open_sheet(oauth_key_file, spreadsheet):
             print("Trying again")
             time.sleep(WAIT_SECONDS)
     return worksheet
-
+#Collecting data from sensors
 def getData(self):
     from collections import defaultdict
     weatherData=defaultdict(dict)
@@ -68,12 +69,13 @@ def getData(self):
                 self.worksheet= login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
             continue
     return weatherData
-
+#Collecting Messages and returning to the client
 def getMessage(self,message):
     messageReturn='\n'+message
     weatherData=getData(self)
     print("Message:"+message)
     #print("Data:"+str(getData))
+    # Last Temperature value
     if message=='LastTemp':
         if weatherData['Unit']=='F':
             messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Last']['Temp']) + 32.0,2))+ \
@@ -81,6 +83,7 @@ def getMessage(self,message):
         else:
             messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
                             '\nTime: '+ weatherData['Last']['Time']
+    # Max Temp value
     elif message=='MaxTemp':
         if weatherData['Unit']=='F':
             messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Max']['Temp']) + 32.0,2))+ \
@@ -88,6 +91,7 @@ def getMessage(self,message):
         else:
             messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
                             '\nTime: '+ weatherData['Max']['Time']
+   # Min Temp value
     elif message=='MinTemp':
         if weatherData['Unit']=='F':
             messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Min']['Temp']) + 32.0,2))+ \
@@ -95,6 +99,7 @@ def getMessage(self,message):
         else:
             messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
                             '\nTime: '+ weatherData['Min']['Time']
+   # Avg Temp value
     elif message=='AvgTemp':
         if weatherData['Unit']=='F':
             messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Avg']['Temp']) + 32.0,2))+ \
@@ -102,18 +107,23 @@ def getMessage(self,message):
         else:
             messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
                             '\nTime: '+ weatherData['Avg']['Time']
+    #Last Humidity value
     elif message=='LastHum':
         messageReturn += '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
                         '\nTime: '+ weatherData['Last']['Time']
+    # Max Humidity value
     elif message=='MaxHum':
         messageReturn += '\nHumidity: '+weatherData['Max']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Max']['Time']
+    #Min Humidity value
     elif message=='MinHum':
         messageReturn += '\nHumidity: '+weatherData['Min']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Min']['Time']
+    #Avg Hum value
     elif message=='AvgHum':
         messageReturn +='\nHumidity: '+weatherData['Avg']['Hum'] + ' %' + \
                         '\nTime: '+ weatherData['Avg']['Time']
+    # Cto F conversion
     elif message=='CtoF':
         farenheit1 = ((9.0/5.0) * (float(weatherData['Last']['Temp']))) + 32.0
         farenheit2 = ((9.0/5.0) * (float(weatherData['Max']['Temp']))) + 32.0
@@ -123,7 +133,6 @@ def getMessage(self,message):
                         '\n Max Temp:' +str(farenheit2) + 'F' + \
                         '\n Min Temp:'  +str(farenheit3) + 'F' +\
                         '\n Avg Temp:' +str(farenheit4) + 'F'
-
     else:
         messageReturn ='Invalid Message'
     return messageReturn
@@ -142,10 +151,13 @@ Please run `pip install tornado` with python of version 2.7.9 or greater to inst
 This program will echo back the reverse of whatever it recieves.
 Messages are output to the terminal for debuggin purposes.
 '''
+# Creating class handlers
 class WSHandler(tornado.websocket.WebSocketHandler):
+    # Open Worksheet
     def open(self):
         self.worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
         print ('new connection')
+   #  Receiving messages from client
     def on_message(self, message):
         print ('message received:  %s' % message)
         if "login" in message:
@@ -159,20 +171,23 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             print("WeatherData:"+weatherData)
             self.write_message(weatherData)
 
+    #Closing the client connection
     def on_close(self):
         print ('connection closed')
 
     def check_origin(self, origin):
         return True
 
-    	
+
 application = tornado.web.Application([
     (r'/ws', WSHandler),
 ])
 
 if __name__ == "__main__":
+    ######## STARTING TORNADO WEBSERVER SOCKET
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(8888)
     myIP = socket.gethostbyname(socket.gethostname())
     print ('*** Websocket Server Started at %s***' % myIP)
     tornado.ioloop.IOLoop.instance().start()
+
