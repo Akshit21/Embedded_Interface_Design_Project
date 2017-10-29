@@ -84,32 +84,32 @@ class Ui_Weather(QtGui.QWidget):
         self.setupUi(self)
         self.editLine = QtGui.QLineEdit()
 		
-		# variables for recording values for graph and avg
+	# variables for recording values for graph and avg
         self.tempList=[]
         self.humidityList=[]
         self.tempTimeList=[]
         self.humidityTimeList=[]
         
-	# GUI setup=> defining button, text editor properties	
+    # GUI setup=> defining button, text editor properties	
     def setupUi(self, Weather):
-		Weather.setObjectName(_fromUtf8("Weather"))
+	Weather.setObjectName(_fromUtf8("Weather"))
         Weather.resize(639, 479)
         Weather.setStyleSheet(_fromUtf8("background-color: rgb(85, 255, 255);\n"
 "background: url(/home/pi/QtProject/various-weather.jpg);"))
         
-		self.quitButton = QtGui.QPushButton(Weather)
+	self.quitButton = QtGui.QPushButton(Weather)
         self.quitButton.setGeometry(QtCore.QRect(480, 400, 121, 41))
         self.quitButton.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
         self.quitButton.setObjectName(_fromUtf8("quitButton"))
         
-		self.tempButton = QtGui.QPushButton(Weather)
+	self.tempButton = QtGui.QPushButton(Weather)
         self.tempButton.setGeometry(QtCore.QRect(60, 40, 231, 41))
         self.tempButton.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
         self.tempButton.setObjectName(_fromUtf8("tempButton"))
         
-		self.humidityButton = QtGui.QPushButton(Weather)
+	self.humidityButton = QtGui.QPushButton(Weather)
         self.humidityButton.setGeometry(QtCore.QRect(370, 40, 221, 41))
         self.humidityButton.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
@@ -121,25 +121,25 @@ class Ui_Weather(QtGui.QWidget):
 "color: rgb(85, 255, 255);"))
         self.setAlarm.setObjectName(_fromUtf8("setAlarm"))
         
-		self.plotGraph = QtGui.QPushButton(Weather)
+	self.plotGraph = QtGui.QPushButton(Weather)
         self.plotGraph.setGeometry(QtCore.QRect(250, 170, 141, 28))
         self.plotGraph.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
         self.plotGraph.setObjectName(_fromUtf8("plotGraph"))
         
-		self.avgValue = QtGui.QPushButton(Weather)
+	self.avgValue = QtGui.QPushButton(Weather)
         self.avgValue.setGeometry(QtCore.QRect(480, 170, 131, 28))
         self.avgValue.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
         self.avgValue.setObjectName(_fromUtf8("avgValue"))
         
-		self.textEditObj = QtGui.QTextEdit(Weather)
+	self.textEditObj = QtGui.QTextEdit(Weather)
         self.textEditObj.setGeometry(QtCore.QRect(50, 340, 261, 87))
         self.textEditObj.setStyleSheet(_fromUtf8("background-color: rgb(0, 0, 0);\n"
 "color: rgb(85, 255, 255);"))
         self.textEditObj.setObjectName(_fromUtf8("textEditObj"))
         
-		self.quitButton.raise_()
+	self.quitButton.raise_()
         self.humidityButton.raise_()
         self.tempButton.raise_()
         self.setAlarm.raise_()
@@ -216,7 +216,7 @@ class Ui_Weather(QtGui.QWidget):
         self.humidityTimeList.append(self.time)
         
         # Display the data in the text editor
-		self.textEditObj.setText(_translate("Weather", "Humidity: {0:.2f} %".format(self.humidity)+\
+	self.textEditObj.setText(_translate("Weather", "Humidity: {0:.2f} %".format(self.humidity)+\
                                             "\nTime:"+datetime.now().strftime('%H:%M:%S'), None))
     
     def getAvg(self):

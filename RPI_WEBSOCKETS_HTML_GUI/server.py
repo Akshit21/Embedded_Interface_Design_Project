@@ -168,6 +168,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     	
 application = tornado.web.Application([
     (r'/ws', WSHandler),
+    (r"/(graph.png)", tornado.web.StaticFileHandler, {'path':'./'})
 ])
 
 if __name__ == "__main__":
