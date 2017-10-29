@@ -60,7 +60,9 @@ def login_open_sheet(oauth_key_file, spreadsheet):
         print('Google sheet login failed with error:', ex)
         sys.exit(1)    
 
+####### QT GUI FOR  MEASURING WEATHER ###############
 class Ui_Weather(QtGui.QWidget):
+    # Creating Instance
     def __init__(self):
         super(Ui_Weather,self).__init__()
         self.tempList=[]
@@ -70,7 +72,7 @@ class Ui_Weather(QtGui.QWidget):
         self.count=2
         self.flag=True
         self.setupUi(self)
-        
+    # Setting up UI
     def setupUi(self, Weather):
         Weather.setObjectName(_fromUtf8("Weather"))
         Weather.resize(600, 600)
@@ -117,7 +119,7 @@ class Ui_Weather(QtGui.QWidget):
 
         self.retranslateUi(Weather)
         QtCore.QMetaObject.connectSlotsByName(Weather)
-
+    
     def retranslateUi(self, Weather):
         Weather.setWindowTitle(_translate("Weather", "Weather", None))
         self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
@@ -133,17 +135,16 @@ class Ui_Weather(QtGui.QWidget):
         self.c2fButton.clicked.connect(self.updateFlagFalse)
         self.f2cButton.clicked.connect(self.updateFlagTrue)
         self.graphButton.clicked.connect(self.plotGraph)
-    
+    # When False update Farenheit
     def updateFlagFalse(self):
         self.worksheet.update_cell(14,7,'F')
         self.flag=False
-    
+    #When True update Celsius
     def updateFlagTrue(self):
         self.worksheet.update_cell(14,7,'C')
         self.flag=True
-    
+    # Graph plotting
     def plotGraph(self):
-	# Graph plotting
         plt.subplot(2,1,1)
         plt.plot(self.timeList,self.tempList)
         plt.xlabel('Time (sec)')
@@ -157,7 +158,7 @@ class Ui_Weather(QtGui.QWidget):
         plt.tight_layout()
         plt.show()
         plt.savefig('graph.png',bbox_inches='tight')
-        
+    # Collecting Data
     def getData(self):
         while True:
             # Attempt to get sensor reading
@@ -179,7 +180,7 @@ class Ui_Weather(QtGui.QWidget):
         self.timeVal=datetime.datetime.now()
         self.timeNow=time.time()
         self.timeList.append(self.timeNow)
-    
+    #Saving Data in worksheet
     def saveData(self):
         if self.worksheet is None:
             self.worksheet = login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
@@ -236,7 +237,7 @@ class Ui_Weather(QtGui.QWidget):
                                                     '\n\nMin: '+str(self.minHum)+ ' %\nTime:' + str(self.timeVal) + \
                                                     '\n\nAvg: '+str(self.avgHum)+ ' %\nTime:' + str(self.timeVal) \
                                                     , None))
-                
+
             except Exception as e:
                 # Error appending data, most likely because credentials are stale.
                 # Null out the self.worksheet so a login is performed at the top of the loop.
