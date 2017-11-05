@@ -5,13 +5,13 @@ AWS.config.loadFromPath('./config.json');
 
 // Create an SQS service object
 var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-
+var tempValue = 22.5;
 var params = {
- DelaySeconds: 10,
- MessageAttributes: {
+ DelaySeconds: 1,
+ /*MessageAttributes: {
   "Title": {
     DataType: "String",
-    StringValue: "The Whistler"
+    StringValue: "Temperature"
    },
   "Author": {
     DataType: "String",
@@ -21,9 +21,9 @@ var params = {
     DataType: "Number",
     StringValue: "6"
    }
- },
- MessageBody: "Information about current NY Times fiction bestseller for week of 12/11/2016.",
- QueueUrl: "https://sqs.us-east-2.amazonaws.com/291619158901/SQS_QUEUE_NAME" //"SQS_QUEUE_URL"
+ },*/
+ MessageBody: "Temperature Value: " + tempValue.toString(),
+ QueueUrl: "https://sqs.us-east-2.amazonaws.com/291619158901/SQS_QUEUE_NAME" // Que URl will change based on our queue
 };
 
 sqs.sendMessage(params, function(err, data) {

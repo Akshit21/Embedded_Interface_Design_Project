@@ -8,8 +8,6 @@ import socket
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-
-
 # JSON file contaning login info (should be in same dir as this file)
 GDOCS_OAUTH_JSON       = 'googleSheetAuth.json'
 
@@ -168,7 +166,7 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 #mqttc.on_log = on_log
 
-commonPath="/home/pi/EID/Embedded_Interface_Design_Project/RPI_AWS_MQTT_GUI/cert/"
+commonPath="/home/pi/EID/Embedded_Interface_Design_Project/RPI_AWS_MQTT_GUI/ServerPi/cert/"
 
 awshost = "a246go1f9auz2g.iot.us-east-2.amazonaws.com"
 awsport = 8883
@@ -189,8 +187,16 @@ worksheet= login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
 while True:
     sleep(0.5)
     if connflag == True:
-        weatherData = str(getData(worksheet))
-        mqttc.publish("temperature", weatherData, qos=0)
-        print("msg sent: Data " + weatherData )
+        weatherData = getData(worksheet)
+        mqttc.publish("MaxTemp", weatherData['Max']['Temp'], qos=0)
+        mqttc.publish("MinTemp", weatherData['Min']['Temp'], qos=0)
+        mqttc.publish("LastTemp", weatherData['Last']['Temp'], qos=0)
+        mqttc.publish("AvgTemp", weatherData['Avg']['Temp'], qos=0)
+        mqttc.publish("MaxHum", weatherData['Max']['Hum'], qos=0)
+        mqttc.publish("MinHum", weatherData['Min']['Hum'], qos=0)
+        mqttc.publish("LastHum", weatherData['Last']['Hum'], qos=0)
+        mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)
+        #mqttc.publish("WeatherData", str(weatherData), qos=0)
+        print("msg sent: Data " + str(weatherData) )
     else:
         print("waiting for connection...")
