@@ -70,74 +70,6 @@ def getData(worksheet):
             continue
     return weatherData
 
-#Collecting Messages and returning to the client
-def getMessage(self,message):
-    messageReturn='\n'+message
-    weatherData=getData(self)
-    print("Message:"+message)
-    #print("Data:"+str(getData))
-    # Last Temperature value
-    if message=='LastTemp':
-        if weatherData['Unit']=='F':
-            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Last']['Temp']) + 32.0,2))+ \
-                            ' F' + '\nTime: '+ weatherData['Last']['Time']
-        else:
-            messageReturn += '\nTemp: '+weatherData['Last']['Temp'] + ' C' + \
-                            '\nTime: '+ weatherData['Last']['Time']
-    # Max Temp value
-    elif message=='MaxTemp':
-        if weatherData['Unit']=='F':
-            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Max']['Temp']) + 32.0,2))+ \
-                            ' F' + '\nTime: '+ weatherData['Max']['Time']
-        else:
-            messageReturn += '\nTemp: '+weatherData['Max']['Temp'] + ' C' + \
-                            '\nTime: '+ weatherData['Max']['Time']
-   # Min Temp value
-    elif message=='MinTemp':
-        if weatherData['Unit']=='F':
-            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Min']['Temp']) + 32.0,2))+ \
-                            ' F' + '\nTime: '+ weatherData['Min']['Time']
-        else:
-            messageReturn += '\nTemp: '+weatherData['Min']['Temp'] + ' C' + \
-                            '\nTime: '+ weatherData['Min']['Time']
-   # Avg Temp value
-    elif message=='AvgTemp':
-        if weatherData['Unit']=='F':
-            messageReturn += '\nTemp: '+str(round((9.0/5.0) *float(weatherData['Avg']['Temp']) + 32.0,2))+ \
-                            ' F' + '\nTime: '+ weatherData['Avg']['Time']
-        else:
-            messageReturn += '\nTemp: '+weatherData['Avg']['Temp'] + ' C' + \
-                            '\nTime: '+ weatherData['Avg']['Time']
-    #Last Humidity value
-    elif message=='LastHum':
-        messageReturn += '\nHumidity: '+weatherData['Last']['Hum'] +' %' + \
-                        '\nTime: '+ weatherData['Last']['Time']
-    # Max Humidity value
-    elif message=='MaxHum':
-        messageReturn += '\nHumidity: '+weatherData['Max']['Hum'] + ' %' + \
-                        '\nTime: '+ weatherData['Max']['Time']
-    #Min Humidity value
-    elif message=='MinHum':
-        messageReturn += '\nHumidity: '+weatherData['Min']['Hum'] + ' %' + \
-                        '\nTime: '+ weatherData['Min']['Time']
-    #Avg Hum value
-    elif message=='AvgHum':
-        messageReturn +='\nHumidity: '+weatherData['Avg']['Hum'] + ' %' + \
-                        '\nTime: '+ weatherData['Avg']['Time']
-    # Cto F conversion
-    elif message=='CtoF':
-        farenheit1 = ((9.0/5.0) * (float(weatherData['Last']['Temp']))) + 32.0
-        farenheit2 = ((9.0/5.0) * (float(weatherData['Max']['Temp']))) + 32.0
-        farenheit3 = ((9.0/5.0) * (float(weatherData['Min']['Temp']))) + 32.0
-        farenheit4 = ((9.0/5.0) * (float(weatherData['Avg']['Temp']))) + 32.0
-        messageReturn +='\n Last Temp:' +str(farenheit1) + 'F' + \
-                        '\n Max Temp:' +str(farenheit2) + 'F' + \
-                        '\n Min Temp:'  +str(farenheit3) + 'F' +\
-                        '\n Avg Temp:' +str(farenheit4) + 'F'
-    else:
-        messageReturn ='Invalid Message'
-    return messageReturn
-
 ####################################################
 # SERVER.PY FILE
 ####################################################
@@ -187,7 +119,7 @@ worksheet= login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
 while True:
     sleep(0.5)
     if connflag == True:
-        weatherData = getData(worksheet)
+        """weatherData = getData(worksheet)
         mqttc.publish("MaxTemp", weatherData['Max']['Temp'], qos=0)
         mqttc.publish("MinTemp", weatherData['Min']['Temp'], qos=0)
         mqttc.publish("LastTemp", weatherData['Last']['Temp'], qos=0)
@@ -195,8 +127,8 @@ while True:
         mqttc.publish("MaxHum", weatherData['Max']['Hum'], qos=0)
         mqttc.publish("MinHum", weatherData['Min']['Hum'], qos=0)
         mqttc.publish("LastHum", weatherData['Last']['Hum'], qos=0)
-        mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)
-        #mqttc.publish("WeatherData", str(weatherData), qos=0)
+        mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)"""
+        mqttc.publish("WeatherData", str(weatherData), qos=0)
         print("msg sent: Data " + str(weatherData) )
     else:
         print("waiting for connection...")
