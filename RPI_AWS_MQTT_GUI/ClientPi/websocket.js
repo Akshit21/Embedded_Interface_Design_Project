@@ -73,7 +73,7 @@ window.onload = function() {
 	 return false;
   };
  
-  plotHumBtnonclick = function(e) {
+  plotHumBtn.onclick = function(e) {
 	 e.preventDefault();
 	 var message = "PlotHum";
 	 humFlag = true;

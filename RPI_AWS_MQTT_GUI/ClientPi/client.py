@@ -41,10 +41,10 @@ def getMessage(self):
                  "Min Temp: "+ str(minT) + " C\t Time: " + timeS + "\n" + \
                  "Last Temp: "+ str(lastT) + " C\t Time: " + timeS + "\n" + \
                  "Avg Temp: "+ str(avgT) + " C\t Time: " + timeS + "\n" + \
-                 "Max Hum: "+ str(maxH) + " %\t Time: " + timeS + "\n" + \
-                 "Min Hum: "+ str(minH) + " %\t Time: " + timeS + "\n" + \
-                 "Last Hum: "+ str(lastH) + " %\t Time: " + timeS + "\n" + \
-                 "Avg Hum: "+ str(avgH) + " %\t Time: " + timeS + "\n\n"
+                 "Max Hum: "+ str(maxH) + " % \t Time: " + timeS + "\n" + \
+                 "Min Hum: "+ str(minH) + " % \t Time: " + timeS + "\n" + \
+                 "Last Hum: "+ str(lastH) + " % \t Time: " + timeS + "\n" + \
+                 "Avg Hum: "+ str(avgH) + " % \t Time: " + timeS + "\n\n"
     return message
 
 def getData(self):
@@ -62,7 +62,6 @@ def getData(self):
         # Process messages by printing out body
         for msg in self.queue.receive_messages(MaxNumberOfMessages=6):
             # Print out the body of the message
-            print('Hello, {0}'.format(msg.body))
             msgBody = ast.literal_eval(msg.body)
             messageList.append(msgBody)
             # Let the queue know that the message is processed
@@ -122,7 +121,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 else:
                     self.write_message('Received correct data.')
                     break
-            print("WeatherData: "+weatherData)
+            print("**************Weather Analysis**************\n"+weatherData)
             if "PlotTemp" in message:
                 plotTemp(self)
                 self.write_message('OK')
