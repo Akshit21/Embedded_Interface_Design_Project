@@ -119,7 +119,8 @@ worksheet= login_open_sheet(GDOCS_OAUTH_JSON, GDOCS_SPREADSHEET_NAME)
 while True:
     sleep(0.5)
     if connflag == True:
-        """weatherData = getData(worksheet)
+        weatherData = getData(worksheet)
+        """
         mqttc.publish("MaxTemp", weatherData['Max']['Temp'], qos=0)
         mqttc.publish("MinTemp", weatherData['Min']['Temp'], qos=0)
         mqttc.publish("LastTemp", weatherData['Last']['Temp'], qos=0)
@@ -128,7 +129,9 @@ while True:
         mqttc.publish("MinHum", weatherData['Min']['Hum'], qos=0)
         mqttc.publish("LastHum", weatherData['Last']['Hum'], qos=0)
         mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)"""
-        mqttc.publish("WeatherData", str(weatherData), qos=0)
+        msg = '"Temp" : "{}", "Hum" : "{}"'.format(weatherData['Last']['Temp'],weatherData['Last']['Hum'])
+        msg = '{' + msg + '}'
+        mqttc.publish("WeatherData", msg, qos=0)
         print("msg sent: Data " + str(weatherData) )
     else:
         print("waiting for connection...")
