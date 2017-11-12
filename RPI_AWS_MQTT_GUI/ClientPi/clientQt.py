@@ -32,7 +32,17 @@ class Ui_Weather(QtGui.QWidget):
         # Get the service resource
         self.sqs = boto3.resource('sqs')
         # Get the queue
-        self.queue = self.sqs.get_queue_by_name(QueueName='Weather.fifo')
+        self.queue = self.sqs.get_queue_by_name(QueueName='myq')
+        self.maxTempList=[]
+        self.minTempList=[]
+        self.lastTempList=[]
+        self.avgTempList=[]
+        self.maxHumList=[]
+        self.minHumList=[]
+        self.lastHumList=[]
+        self.avgHumList=[]
+        self.count = 0   # Count to check number of values collected
+        self.cFlag = True  # flag to check if C or F
         self.setupUi(self)
         
     # Setting up UI
@@ -61,6 +71,12 @@ class Ui_Weather(QtGui.QWidget):
         self.valButton = QtGui.QPushButton(Weather)
         self.valButton.setObjectName(_fromUtf8("valButton"))
         self.verticalLayout.addWidget(self.valButton)
+        self.ctofButton = QtGui.QRadioButton(Weather)
+        self.ctofButton.setObjectName(_fromUtf8("ctofButton"))
+        self.verticalLayout.addWidget(self.ctofButton)
+        self.ftocButton = QtGui.QRadioButton(Weather)
+        self.ftocButton.setObjectName(_fromUtf8("ftocButton"))
+        self.verticalLayout.addWidget(self.ftocButton)
         self.tempGraphButton = QtGui.QPushButton(Weather)
         self.tempGraphButton.setObjectName(_fromUtf8("tempGraphButton"))
         self.verticalLayout.addWidget(self.tempGraphButton)
@@ -82,91 +98,99 @@ class Ui_Weather(QtGui.QWidget):
         self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
         self.valLabel.setText(_translate("Weather", "Weather Data", None))
         self.valButton.setText(_translate("Weather", "Get Weather Data", None))
+        self.ctofButton.setText(_translate("Weather", "F", None))
+        self.ftocButton.setText(_translate("Weather", "C", None))
         self.tempGraphButton.setText(_translate("Weather", "Plot Temp Graph", None))
         self.humGraphButton.setText(_translate("Weather", "Plot Hum Graph", None))
         self.errorLabel.setText(_translate("Weather", "Error", None))
         self.valButton.clicked.connect(self.getData)
         self.tempGraphButton.clicked.connect(self.plotTemp)
         self.humGraphButton.clicked.connect(self.plotHum)
+        self.ctofButton.clicked.connect(self.cToF)
+        self.ftocButton.clicked.connect(self.fToC)
+    
+    def cToF(self):
+        self.cFlag = False
+    
+    def fToC(self):
+        self.cFlag = True
         
     def plotTemp(self):
-        timeList1 = [datetime.datetime.strptime(val,'%Y-%m-%d %H:%M:%S') for val in self.timeStamp]
-        timeList = matplotlib.dates.date2num(timeList1)
-        plt.plot(timeList, self.maxTempList, 'b-', label='Max Temp')
-        plt.plot(timeList, self.minTempList, 'r-', label='Min Temp')
-        plt.plot(timeList, self.lastTempList, 'y-', label='Last Temp')
-        plt.plot(timeList, self.avgTempList, 'g-', label='Avg Temp')
+        plt.plot(range(self.count), self.maxTempList, 'b-', label='Max Temp')
+        plt.plot(range(self.count), self.minTempList, 'r-', label='Min Temp')
+        plt.plot(range(self.count), self.lastTempList, 'y-', label='Last Temp')
+        plt.plot(range(self.count), self.avgTempList, 'g-', label='Avg Temp')
         plt.legend(loc='best')
         plt.title('Temperature Analysis')
         plt.ylabel('Temperature C')
-        plt.xlabel('Time Stamp')
+        plt.xlabel('Count')
         plt.show()
         #plt.savefig('temp.png',bbox_inches='tight')
 
     def plotHum(self):
-        timeList1 = [datetime.datetime.strptime(val,'%Y-%m-%d %H:%M:%S') for val in self.timeStamp]
-        timeList = matplotlib.dates.date2num(timeList1)
-        plt.plot(timeList, self.maxHumList, 'b-', label='Max Hum')
-        plt.plot(timeList, self.minHumList, 'r-', label='Min Hum')
-        plt.plot(timeList, self.lastHumList, 'y-', label='Last Hum')
-        plt.plot(timeList, self.avgHumList, 'g-', label='Avg Hum')
+        plt.plot(range(self.count), self.maxHumList, 'b-', label='Max Hum')
+        plt.plot(range(self.count), self.minHumList, 'r-', label='Min Hum')
+        plt.plot(range(self.count), self.lastHumList, 'y-', label='Last Hum')
+        plt.plot(range(self.count), self.avgHumList, 'g-', label='Avg Hum')
         plt.legend(loc='best')
         plt.title('Humidity Analysis')
         plt.ylabel('Humidity %')
-        plt.xlabel('Time Stamp')
+        plt.xlabel('Count')
         plt.show()
         #plt.savefig('hum.png',bbox_inches='tight')
     
     def getMessage(self):
         message=""
-        for maxT,minT,lastT,avgT,maxH,minH,lastH,avgH,timeS in \
+        for maxT,minT,lastT,avgT,maxH,minH,lastH,avgH in \
             zip(self.maxTempList, self.minTempList, self.lastTempList, \
                            self.avgTempList, self.maxHumList, self.minHumList, \
-                           self.lastHumList, self.avgHumList, self.timeStamp):
-            message+="Max Temp: "+ str(maxT) + " C\t Time: " + timeS + "\n" + \
-                     "Min Temp: "+ str(minT) + " C\t Time: " + timeS + "\n" + \
-                     "Last Temp: "+ str(lastT) + " C\t Time: " + timeS + "\n" + \
-                     "Avg Temp: "+ str(avgT) + " C\t Time: " + timeS + "\n" + \
-                     "Max Hum: "+ str(maxH) + " % \t Time: " + timeS + "\n" + \
-                     "Min Hum: "+ str(minH) + " % \t Time: " + timeS + "\n" + \
-                     "Last Hum: "+ str(lastH) + " % \t Time: " + timeS + "\n" + \
-                     "Avg Hum: "+ str(avgH) + " % \t Time: " + timeS + "\n\n"
+                           self.lastHumList, self.avgHumList):
+            if self.cFlag:
+                message +=   "Max Temp: "+ str(maxT) + " C\n" + \
+                             "Min Temp: "+ str(minT) + " C\n" + \
+                             "Last Temp: "+ str(lastT) + " C\n" + \
+                             "Avg Temp: "+ str(avgT) + " C\n"
+            else: 
+                message +=   "Max Temp: {0:.2f}".format((maxT*1.8)+32) + " F\n" + \
+                             "Min Temp: {0:.2f}".format((minT*1.8)+32) + " F\n" + \
+                             "Last Temp: {0:.2f}".format((lastT*1.8)+32) + " F\n" + \
+                             "Avg Temp: {0:.2f}".format((avgT*1.8)+32) + " F\n"
+            message += "Max Hum: "+ str(maxH) + " %\n" + \
+                        "Min Hum: "+ str(minH) + " %\n" + \
+                        "Last Hum: "+ str(lastH) + " %\n" + \
+                        "Avg Hum: "+ str(avgH) + " %\n\n"
         return message
 
     def getData(self):
         messageList=[]
-        self.maxTempList=[]
-        self.minTempList=[]
-        self.lastTempList=[]
-        self.avgTempList=[]
-        self.maxHumList=[]
-        self.minHumList=[]
-        self.lastHumList=[]
-        self.avgHumList=[]
-        self.timeStamp=[]
         for i in range(3):
+            msg_array = self.queue.receive_messages(MaxNumberOfMessages=10)
+            if not msg_array:
+                break
             # Process messages by printing out body
-            for msg in self.queue.receive_messages(MaxNumberOfMessages=6):
+            for msg in msg_array:
                 # Print out the body of the message
                 msgBody = ast.literal_eval(msg.body)
                 messageList.append(msgBody)
                 # Let the queue know that the message is processed
+                # delete the msg
                 #msg.delete()
+                self.count += 1
+            
         if messageList:
             for msg in  messageList:
-                self.maxTempList.append(msg["Max"]["Temp"])
-                self.minTempList.append(msg["Min"]["Temp"])
-                self.lastTempList.append(msg["Last"]["Temp"])
-                self.avgTempList.append(msg["Avg"]["Temp"])
-                self.maxHumList.append(msg["Max"]["Hum"])
-                self.minHumList.append(msg["Min"]["Hum"])
-                self.lastHumList.append(msg["Last"]["Hum"])
-                self.avgHumList.append(msg["Avg"]["Hum"])
-                self.timeStamp.append(msg["Max"]["Time"])
+                self.maxTempList.append(msg["max_temp"])
+                self.minTempList.append(msg["min_temp"])
+                self.lastTempList.append(msg["temp"])
+                self.avgTempList.append(msg["avg_temp"])
+                self.maxHumList.append(msg["max_humidity"])
+                self.minHumList.append(msg["min_humidity"])
+                self.lastHumList.append(msg["humidity"])
+                self.avgHumList.append(msg["avg_humidity"])
             message=self.getMessage()
             self.valDisplay.setText(_translate("Weather", message, None)) 
         else:
-            self.errorDisplay.setText(_translate("Weather", "Couldn't grab data try again", None)) 
+            self.errorDisplay.setText(_translate("Weather", "Couldn't grab data Try again!!", None)) 
 
 if __name__ == "__main__":
     import sys
