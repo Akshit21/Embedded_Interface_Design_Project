@@ -4,7 +4,8 @@ import itertools
 import matplotlib
 import matplotlib.pyplot as plt
 import datetime
-
+# importing required libraries
+#plotting temperature values
 def plotTemp(self):
     timeList1 = [datetime.datetime.strptime(val,'%Y-%m-%d %H:%M:%S') for val in self.timeStamp]
     timeList = matplotlib.dates.date2num(timeList1)
@@ -17,7 +18,7 @@ def plotTemp(self):
     plt.ylabel('Temperature C')
     plt.xlabel('Time Stamp')
     plt.savefig('temp.png',bbox_inches='tight')
-
+# plotting humidity values
 def plotHum(self):
     timeList1 = [datetime.datetime.strptime(val,'%Y-%m-%d %H:%M:%S') for val in self.timeStamp]
     timeList = matplotlib.dates.date2num(timeList1)
@@ -30,7 +31,7 @@ def plotHum(self):
     plt.ylabel('Humidity %')
     plt.xlabel('Time Stamp')
     plt.savefig('hum.png',bbox_inches='tight')
-
+#getting message from sqs
 def getMessage(self):
     message=""
     for maxT,minT,lastT,avgT,maxH,minH,lastH,avgH,timeS in \
