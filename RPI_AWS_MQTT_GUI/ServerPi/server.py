@@ -130,10 +130,10 @@ while True:
         mqttc.publish("MinHum", weatherData['Min']['Hum'], qos=0)
         mqttc.publish("LastHum", weatherData['Last']['Hum'], qos=0)
         mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)"""
-        msg = '"Temp" : "{}", "Hum" : "{}", "Count" : "{}"'.format(weatherData['Last']['Temp'],weatherData['Last']['Hum'],count)
+        msg = '"temp" : {}, "humidity" : {}, "count" : {}'.format(weatherData['Last']['Temp'],weatherData['Last']['Hum'],count)
         msg = '{' + msg + '}'
         mqttc.publish("WeatherData", msg, qos=0)
-        print("msg sent: Data " + str(weatherData) )
+        print("msg sent: Data " + str(msg) )
         count += 1
     else:
         print("waiting for connection...")
