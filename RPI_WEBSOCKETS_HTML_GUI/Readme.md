@@ -4,8 +4,6 @@
 
 ## Details
 ```
-TEAM MATES: AKSHIT SHAH,
-HARI SHREENIVASH
 ### Server Rpi:
 1. Created a GUI using Qt designer 5 and converted to .py file (puic4 QTproject.ui -o eid1.py)
 2. Created a google sheet and use as database to store the sensor values
