@@ -32,7 +32,7 @@ class Ui_Weather(QtGui.QWidget):
         # Get the service resource
         self.sqs = boto3.resource('sqs')
         # Get the queue
-        self.queue = self.sqs.get_queue_by_name(QueueName='myq')
+        self.queue = self.sqs.get_queue_by_name(QueueName='statq')
         self.maxTempList=[]
         self.minTempList=[]
         self.lastTempList=[]
@@ -174,7 +174,7 @@ class Ui_Weather(QtGui.QWidget):
                 messageList.append(msgBody)
                 # Let the queue know that the message is processed
                 # delete the msg
-                #msg.delete()
+                msg.delete()
                 self.count += 1
             
         if messageList:
@@ -188,9 +188,9 @@ class Ui_Weather(QtGui.QWidget):
                 self.lastHumList.append(msg["humidity"])
                 self.avgHumList.append(msg["avg_humidity"])
             message=self.getMessage()
-            self.valDisplay.setText(_translate("Weather", message, None)) 
+            self.valDisplay.setText(_translate("Weather", "Received Correct Data\n"+message, None)) 
         else:
-            self.errorDisplay.setText(_translate("Weather", "Couldn't grab data Try again!!", None)) 
+            self.errorDisplay.setText(_translate("Weather", "Couldn't grab data Try again!!\nEither queue is empty or check your AWS settings", None)) 
 
 if __name__ == "__main__":
     import sys
