@@ -174,7 +174,7 @@ class Ui_Weather(QtGui.QWidget):
                 messageList.append(msgBody)
                 # Let the queue know that the message is processed
                 # delete the msg
-                #msg.delete()
+                msg.delete()
                 self.count += 1
      #displaying messages in qt       
         if messageList:
