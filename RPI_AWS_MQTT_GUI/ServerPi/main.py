@@ -223,6 +223,7 @@ class Ui_Weather(QtGui.QWidget):
                                                         "\n\nMin: "+str(round((9.0/5.0) * self.minTemp + 32.0,2))+ " F\nTime:" + str(self.timeVal) + \
                                                         "\n\nAvg: "+str(round((9.0/5.0) * self.avgTemp + 32.0,2))+ " F\nTime:" + str(self.timeVal) \
                                                         , None))
+                    #displaying  humidity
                 self.humidityDisplay.setText(_translate("Weather", \
                                                     'Last: '+str(self.humidity)+ ' %\nTime:' + str(self.timeVal) + \
                                                     '\n\nMax: '+str(self.maxHum)+ ' %\nTime:' + str(self.timeVal) + \

@@ -121,15 +121,8 @@ while True:
     sleep(0.5)
     if connflag == True:
         weatherData = getData(worksheet)
+        """ Publishing to mqtt topicin JSON format
         """
-        mqttc.publish("MaxTemp", weatherData['Max']['Temp'], qos=0)
-        mqttc.publish("MinTemp", weatherData['Min']['Temp'], qos=0)
-        mqttc.publish("LastTemp", weatherData['Last']['Temp'], qos=0)
-        mqttc.publish("AvgTemp", weatherData['Avg']['Temp'], qos=0)
-        mqttc.publish("MaxHum", weatherData['Max']['Hum'], qos=0)
-        mqttc.publish("MinHum", weatherData['Min']['Hum'], qos=0)
-        mqttc.publish("LastHum", weatherData['Last']['Hum'], qos=0)
-        mqttc.publish("AvgHum", weatherData['Avg']['Hum'], qos=0)"""
         msg = '"temp" : {}, "humidity" : {}, "count" : {}'.format(weatherData['Last']['Temp'],weatherData['Last']['Hum'],count)
         msg = '{' + msg + '}'
         mqttc.publish("WeatherData", msg, qos=0)
