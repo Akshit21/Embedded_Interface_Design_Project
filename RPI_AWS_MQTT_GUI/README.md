@@ -3,7 +3,7 @@
 
 ## Details
 ```
-*Server RPI*:
+### Server RPI:
 1. Created a GUI using Qt designer 5 and converted to .py file (puic5 QTproject.ui -o main.py)
 2. Created a google sheet to use as database to store the sensor values
 3. Created a MQTT topic to transfer the values to AWS in json format
