@@ -1,6 +1,6 @@
 //References
 //http://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/sqs-examples-send-receive-messages.html
-
+//https://stackoverflow.com/questions/5726729/how-to-parse-json-using-node-js
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 
