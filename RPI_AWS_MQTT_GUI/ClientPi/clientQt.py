@@ -32,7 +32,7 @@ class Ui_Weather(QtGui.QWidget):
         # Get the service resource
         self.sqs = boto3.resource('sqs')
         # Get the queue
-        self.queue = self.sqs.get_queue_by_name(QueueName='statq')
+        self.queue = self.sqs.get_queue_by_name(QueueName='myq')
         self.maxTempList=[]
         self.minTempList=[]
         self.lastTempList=[]
@@ -92,7 +92,7 @@ class Ui_Weather(QtGui.QWidget):
 
         self.retranslateUi(Weather)
         QtCore.QMetaObject.connectSlotsByName(Weather)
-    #providing functionality for the buttons
+    
     def retranslateUi(self, Weather):
         Weather.setWindowTitle(_translate("Weather", "Weather", None))
         self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
@@ -114,7 +114,7 @@ class Ui_Weather(QtGui.QWidget):
     
     def fToC(self):
         self.cFlag = True
-        #plotting temperature values
+        
     def plotTemp(self):
         plt.plot(range(self.count), self.maxTempList, 'b-', label='Max Temp')
         plt.plot(range(self.count), self.minTempList, 'r-', label='Min Temp')
@@ -126,7 +126,7 @@ class Ui_Weather(QtGui.QWidget):
         plt.xlabel('Count')
         plt.show()
         #plt.savefig('temp.png',bbox_inches='tight')
-#Plotting humidity values
+
     def plotHum(self):
         plt.plot(range(self.count), self.maxHumList, 'b-', label='Max Hum')
         plt.plot(range(self.count), self.minHumList, 'r-', label='Min Hum')
@@ -138,7 +138,7 @@ class Ui_Weather(QtGui.QWidget):
         plt.xlabel('Count')
         plt.show()
         #plt.savefig('hum.png',bbox_inches='tight')
-    #parsing the received message from sqs and storing them in right format
+    
     def getMessage(self):
         message=""
         for maxT,minT,lastT,avgT,maxH,minH,lastH,avgH in \
@@ -160,7 +160,7 @@ class Ui_Weather(QtGui.QWidget):
                         "Last Hum: "+ str(lastH) + " %\n" + \
                         "Avg Hum: "+ str(avgH) + " %\n\n"
         return message
-#Pulling a fixed number of messages for plotting it on qt
+
     def getData(self):
         messageList=[]
         for i in range(3):
@@ -176,7 +176,7 @@ class Ui_Weather(QtGui.QWidget):
                 # delete the msg
                 msg.delete()
                 self.count += 1
-     #displaying messages in qt       
+            
         if messageList:
             for msg in  messageList:
                 self.maxTempList.append(msg["max_temp"])
@@ -188,7 +188,7 @@ class Ui_Weather(QtGui.QWidget):
                 self.lastHumList.append(msg["humidity"])
                 self.avgHumList.append(msg["avg_humidity"])
             message=self.getMessage()
-            self.valDisplay.setText(_translate("Weather", "Received Correct Data\n"+message, None)) 
+            self.valDisplay.setText(_translate("Weather", "Received Correct Data\n"+message+"Time: "+ str(datetime.datetime.now()), None)) 
         else:
             self.errorDisplay.setText(_translate("Weather", "Couldn't grab data Try again!!\nEither queue is empty or check your AWS settings", None)) 
 
