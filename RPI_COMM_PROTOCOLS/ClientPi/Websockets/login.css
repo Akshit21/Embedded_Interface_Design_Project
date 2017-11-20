@@ -1,0 +1,56 @@
+#username{
+  display:block;
+  border:1px solid #333333;
+  border-radius:5px;
+  min-width:80px; height:25px;
+  margin:3px; padding:2px;
+  text-align:center;
+  background:#ffffff;
+  color:#000000;
+  float:left;
+  position: absolute;
+  top: 100px;
+  left: 550px;
+}
+
+#password{
+  display:block;
+  border:1px solid #333333;
+  border-radius:5px;
+  min-width:80px; height:25px;
+  margin:3px; padding:2px;
+  text-align:center;
+  background:#ffffff;
+  color:#000000;
+  float:left;
+  position: absolute;
+  top: 150px;
+  left: 550px;
+}
+
+#Heading{
+  position: absolute;
+  top:0px;
+  left:400px;
+}
+
+#username_label{
+  position: absolute;
+  top: 110px;
+  left: 480px;
+}
+
+#password_label{
+  position: absolute;
+  top: 160px;
+  left: 485px;
+}
+
+#login{
+  position: absolute;
+  font-size: 14px;
+  border: 1px solid;
+  border-radius: 4px;
+  top: 200px;
+  left: 550px;
+}
