@@ -1,3 +1,10 @@
+/** This code gets the data from aws IoT and sends to two sqs queues and receives them and updates them with newer values.
+*   These newer values will be pulled from the client side performing data analysis 	
+*/
+
+//References
+//http://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/sqs-examples-send-receive-messages.html
+//https://stackoverflow.com/questions/5726729/how-to-parse-json-using-node-js
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 
