@@ -71,6 +71,9 @@ class Ui_Weather(QtGui.QWidget):
         self.valButton = QtGui.QPushButton(Weather)
         self.valButton.setObjectName(_fromUtf8("valButton"))
         self.verticalLayout.addWidget(self.valButton)
+        self.protocolTestButton = QtGui.QPushButton(Weather)
+        self.protocolTestButton.setObjectName(_fromUtf8("protocolTestButton"))
+        self.verticalLayout.addWidget(self.protocolTestButton)
         self.ctofButton = QtGui.QRadioButton(Weather)
         self.ctofButton.setObjectName(_fromUtf8("ctofButton"))
         self.verticalLayout.addWidget(self.ctofButton)
@@ -98,6 +101,7 @@ class Ui_Weather(QtGui.QWidget):
         self.mainLabel.setText(_translate("Weather", "Weather Monitoring System", None))
         self.valLabel.setText(_translate("Weather", "Weather Data", None))
         self.valButton.setText(_translate("Weather", "Get Weather Data", None))
+        self.protocolTestButton.setText(_translate("Weather", "Execute Protocol Test", None))
         self.ctofButton.setText(_translate("Weather", "F", None))
         self.ftocButton.setText(_translate("Weather", "C", None))
         self.tempGraphButton.setText(_translate("Weather", "Plot Temp Graph", None))
@@ -108,6 +112,10 @@ class Ui_Weather(QtGui.QWidget):
         self.humGraphButton.clicked.connect(self.plotHum)
         self.ctofButton.clicked.connect(self.cToF)
         self.ftocButton.clicked.connect(self.fToC)
+        self.protocolTestButton.clicked.connect(self.execDataTransfer)
+        
+    def execDataTransfer(self):
+        pass
     
     def cToF(self):
         self.cFlag = False
