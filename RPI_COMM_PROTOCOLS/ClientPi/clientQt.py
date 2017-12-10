@@ -7,6 +7,8 @@ import boto3
 import ast
 import matplotlib
 import Adafruit_DHT
+import threading
+import paho.mqtt.client as mqtt
 
 from PyQt4 import QtCore, QtGui
 
@@ -23,9 +25,38 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+    
+start_time_coap = 0
+start_time_amqp = 0
+start_time_mqtt = 0
+amqp_times = list()
+coap_times = list()
+mqtt_times = list()
+
+def on_publish(client,obj,mid):
+    global start_time_mqtt
+    start_time_mqtt = time.time()
+    #print("published")
+
+def on_message(client,obj,msg):
+    global start_time_mqtt
+    global mqtt_times
+    elapsed_time = time.time() - start_time_mqtt
+    #print(elapsed_time)
+    mqtt_times.append(round(elapsed_time,3))
+    
 
 ####### QT GUI FOR  MEASURING WEATHER ###############
 class Ui_Weather(QtGui.QWidget):
+    def publish_thread(self):
+        global start_time
+        self.client = mqtt.Client()
+        self.client.connect("10.0.0.17", 1883, 60)
+        self.client.subscribe("/EID",0)
+        self.client.on_publish = on_publish
+        self.client.on_message = on_message
+        self.client.loop_start()
+    
     # Creating Instance
     def __init__(self):
         super(Ui_Weather,self).__init__()
@@ -44,6 +75,8 @@ class Ui_Weather(QtGui.QWidget):
         self.count = 0   # Count to check number of values collected
         self.cFlag = True  # flag to check if C or F
         self.setupUi(self)
+        self.mqtt_thread = threading.Thread(target = self.publish_thread,name='mqtt_thread')
+        self.mqtt_thread.start()
         
     # Setting up UI
     def setupUi(self, Weather):
@@ -115,7 +148,16 @@ class Ui_Weather(QtGui.QWidget):
         self.protocolTestButton.clicked.connect(self.execDataTransfer)
         
     def execDataTransfer(self):
-        pass
+        global coap_times
+        global amqp_times
+        global mqtt_times
+        coap_times = list()
+        amqp_times = list()
+        mqtt_times = list()
+        message=self.getMessage()
+        self.client.publish('/EID',message)
+        time.sleep(0.1)
+        print(mqtt_times)
     
     def cToF(self):
         self.cFlag = False

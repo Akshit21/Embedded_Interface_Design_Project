@@ -4,8 +4,10 @@ import time
 import datetime
 import matplotlib.pyplot as plt
 import Adafruit_DHT
+import threading
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import paho.mqtt.client as mqtt
 
 from PyQt4 import QtCore, QtGui
 
@@ -245,11 +247,35 @@ class Ui_Weather(QtGui.QWidget):
             break
     
 
+def on_connect(mqttc, obj, flags, rc):
+    print("rc: " + str(rc))
+    
+def on_message(mqttc, obj, msg):
+    mqttc.publish("/EID",str(msg.payload))
+    
+def on_subscribe(mqttc, obj, mid, granted_qos):
+    print("Subscribed: " + str(mid) + " " + str(granted_qos))
+
+def on_log(mqttc, obj, level, string):
+    print(string)
+
+def mqtt_connection_thread():
+    mqttc = mqtt.Client()
+    mqttc.on_message = on_message
+    mqttc.on_connect = on_connect
+    mqttc.on_subscribe = on_subscribe
+    mqttc.connect("10.0.0.17", 1883, 60)
+    mqttc.subscribe("/EID", 0)
+    
+    mqttc.loop_forever()
+
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
     weatherGui = QtGui.QWidget()
     ui = Ui_Weather()
     ui.setupUi(weatherGui)
+    mqtt_thread = threading.Thread(target = mqtt_connection_thread, name='mqtt_thread')
+    mqtt_thread.start()
     weatherGui.show()
     sys.exit(app.exec_())
