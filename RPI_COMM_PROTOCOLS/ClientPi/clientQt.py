@@ -32,9 +32,11 @@ except AttributeError:
 start_time_coap = 0
 start_time_amqp = 0
 start_time_mqtt = 0
+start_time_ws = 0
 amqp_times = list()
 coap_times = list()
 mqtt_times = list()
+ws_times = list()
 
 def on_publish(client,obj,mid):
     global start_time_mqtt
@@ -141,10 +143,11 @@ class Ui_Weather(QtGui.QWidget):
     
     def wsTest(self,message):
         ws = create_connection("ws://10.0.0.17:8888/ws")
-        print("Connection Established!!")
+        start_time_ws= time.time()
         ws.send(message)
         result =  ws.recv()
-        print("Received '%s'" % result)
+        elapsed_time = time.time() - start_time_ws
+        ws_times.append(round(elapsed_time,3))
         ws.close()
     
     # Creating Instance
@@ -247,15 +250,33 @@ class Ui_Weather(QtGui.QWidget):
         amqp_times = list()
         mqtt_times = list()
         message=self.getMessage()
-        self.client.publish('/EID',message)
-        time.sleep(0.1)
+        for i in range(30):
+            self.client.publish('/EID',message)
+            time.sleep(0.1)
+        mqtt_times = mqtt_times[:30]
         print(mqtt_times)
         bytes = str.encode(message)
-        self.coap_client.main(bytes)
+        for i in range(30):
+            self.coap_client.main(bytes)
+            time.sleep(0.1)
         print(coap_times)
-        self.amqp_client.publish_string(message)
-        time.sleep(0.1)
+        for i in range(30):
+            self.amqp_client.publish_string(message)
+            time.sleep(0.1)
         print(amqp_times)
+        for i in range(30):
+            self.wsTest(message)
+            time.sleep(0.1)
+        print(ws_times)
+        plt.plot(range(30), mqtt_times, 'b-', label='MQTT')
+        plt.plot(range(30), coap_times, 'r-', label='COAP')
+        plt.plot(range(30), amqp_times, 'y-', label='AMQP')
+        plt.plot(range(30), ws_times, 'g-', label='WS')
+        plt.legend(loc='best')
+        plt.title('Protocol Analysis')
+        plt.ylabel('Time')
+        plt.xlabel('No of Msg')
+        plt.show()
     
     def cToF(self):
         self.cFlag = False
