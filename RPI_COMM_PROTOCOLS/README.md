@@ -1,4 +1,4 @@
-# **Communication between 2 RPIs using MQTT, AWS, SQS**
+# **Communication between 2 RPIs using MQTT, AWS, SQS and profiling for MQTT,Websockets,CoAP,AMQP**
 
 
 ## Details
@@ -7,6 +7,8 @@
 1. Created a GUI using Qt designer 5 and converted to .py file (puic5 QTproject.ui -o main.py)
 2. Created a google sheet to use as database to store the sensor values
 3. Created a MQTT topic to transfer the values to AWS in json format
+4. Created call back mechanism to send the data back after payload from corresponding protocols
+
 
 ### Amazon Web Service:
 1. Created a java script file to accept the messages from MQTT
@@ -19,6 +21,7 @@
 1. Implemented a mechanism to grab the data from the SQS queue.
 2. The message is then converted to more readable format and displayed on Qt GUI.
 3. On button requests graphs are plotted for all the values.
+4. Functionality to perform profilinhg for MQTT,Websockets,CoAP,AMQP using multiple threads 
 ```
 
 ## Setup
@@ -35,6 +38,11 @@
 	4. gspread
 	5. boto3
 	6. matplotlib
+	7. asyncio
+	8. aicoap
+	9. pika
+	10. rabbitmq
+	
 ```
 
 ## Prerequisites
@@ -49,6 +57,9 @@
 ```
 1. Adafruit_DHT and google spread sheet: https://github.com/adafruit/Adafruit_Python_DHT
 2. AWS MQTT, Lambda SQS : https://us-west-2.console.aws.amazon.com/iotv2/home?region=us-east-2#/learnHub
+3. CoAP implementation using https://github.com/chrysn/aiocoap
+4. AMQP consumer implementation using https://pika.readthedocs.io/en/0.11.2/examples/asynchronous_consumer_example.html
+5. AMQP producer implementation using https://pika.readthedocs.io/en/0.11.2/examples/asynchronous_publisher_example.html
 ```
 
 ## Project Tasks Accomplished
@@ -63,12 +74,15 @@
 7. Client Rpi setups a connection with AWS and grabs the data from the queue
 8. The received data is displayed onto QT window and graph is plotted on button request
    along with the option of converting C to F or vice versa
+9. Implemented server-client model for MQTT,Websockets,CoAP,AMQP and performed profiling for the protocols
+10.Plotted graph to compare the performance of the protocols from the results of profiling
    
 ### Extra Credits
 1. Implemented CloudWatch to monitor the Data
 2. Setup an Alarm to trigger if there are any errors occured for Lambda invocation
 3. Used SNS service to notify the user via email
 4. Used Dynamodb to store the latest values received by AWS
+5. Implemented AMQP using rabbitmq and performed profiling 
 ```
 
 ## Run the code
