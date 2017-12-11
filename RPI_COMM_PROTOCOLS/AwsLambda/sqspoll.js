@@ -1,3 +1,18 @@
+/**
+ *  @file sqspoll.js
+ *  @brief This file contains the functions which are used in aws lambda to perform 
+ *    	   to get data from aws iot and calculate statistics and populate the sqs queues 
+ *
+ *  @author  Arunsundar Kannan / Akshit shah
+ *  @date    10 November2017
+ *  
+ */
+
+
+
+
+
+
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 

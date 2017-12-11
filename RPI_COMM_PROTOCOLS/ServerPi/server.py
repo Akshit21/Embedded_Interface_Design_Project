@@ -1,6 +1,12 @@
-####################################################
-# SAVE ON DRIVE.PY FILE
-####################################################
+ """
+ *  @file server.py
+ *  @brief This file implements the server side Qt Gui and collects data and populates the google sheet
+ *
+ *  @author  Arunsundar Kannan / Akshit shah
+ *  @date    10 December 2017
+ *  
+ *
+"""
 
 import json
 import sys

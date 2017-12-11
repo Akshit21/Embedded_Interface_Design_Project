@@ -1,3 +1,19 @@
+
+"""
+ *  @file  main.py
+ *  @brief This file implements the client side Qt Gui along with hosting multiple servers to perform  
+ *    	   protocol analysis using matplotlib graphing utility 
+ *
+ *  @author  Arunsundar Kannan / Akshit shah
+ *  @date    10 December 2017
+ *  
+ *
+"""
+
+
+
+
+
 import json
 import sys
 import time
@@ -259,7 +275,7 @@ class Ui_Weather(QtGui.QWidget):
                 continue
             break
     
-
+####### MQTT PUBLISH SUBSCRIBE IMPLEMENTATION ###########
 def on_connect(mqttc, obj, flags, rc):
     print("rc: " + str(rc))
     
@@ -280,6 +296,9 @@ def mqtt_connection_thread():
     mqttc.connect("10.0.0.17", 1883, 60)
     mqttc.subscribe("/EID", 0)
     mqttc.loop_forever()
+
+
+###### WEBSOCKETS IMPLEMENTATION USING TORNADO SERVER ########
 
 # Creating class handlers
 class WSHandler(tornado.websocket.WebSocketHandler):
@@ -308,6 +327,9 @@ def ws_connection_thread():
     myIP = socket.gethostbyname(socket.gethostname())
     print ('*** Websocket Server Started at %s***' % myIP)
     tornado.ioloop.IOLoop.instance().start()
+
+
+######## CoAP PUT AND GET implementation ########### 
     
 class BlockResource(resource.Resource):
     """Example resource which supports the GET and PUT methods. It sends large
@@ -392,6 +414,10 @@ class coap_main():
 
         asyncio.Task(aiocoap.Context.create_server_context(root))
         asyncio.get_event_loop().run_forever()
+
+######### AMQP implementation functions #######################
+
+
         
 class amqp_init:
     def __init__(self):

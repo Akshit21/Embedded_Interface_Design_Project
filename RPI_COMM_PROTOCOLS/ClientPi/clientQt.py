@@ -1,3 +1,18 @@
+ """
+ *  @file clientQt.py
+ *  @brief This file implements the client side Qt Gui along with hosting multiple servers to perform  
+ *    	   protocol analysis using matplotlib graphing utility 
+ *
+ *  @author  Arunsundar Kannan / Akshit shah
+ *  @date    10 December 2017
+ *  
+ *
+"""
+
+
+
+#importing required libraries
+
 import json
 import sys
 import time
@@ -37,7 +52,10 @@ amqp_times = list()
 coap_times = list()
 mqtt_times = list()
 ws_times = list()
+"""
+MQTT functions to publish to the topic is mosquitto 
 
+"""
 def on_publish(client,obj,mid):
     global start_time_mqtt
     start_time_mqtt = time.time()
@@ -49,7 +67,10 @@ def on_message(client,obj,msg):
     elapsed_time = time.time() - start_time_mqtt
     #print(elapsed_time)
     mqtt_times.append(round(elapsed_time,3))
+"""
+AMQP functions for the producer side to send the payload to server side of the system
 
+"""
 class amqp_init:
     def __init__(self):
         self.channel = None
@@ -99,10 +120,13 @@ class amqp_init:
             self.channel.basic_ack(basic_deliver.delivery_tag)
             #print("got message: %s", body)
 
-    
+"""
+CoAP implementation functions to send and recieve data to the server side
+
+"""     
 class coap_client():
     async def send(self,message):
-        """Perform a single PUT request to localhost on the default port, URI
+        """Perform a single PUT request to server on the default port, URI
         "/other/block". The request is sent 2 seconds after initialization.
 
         The payload is bigger than 1kB, and thus sent as several blocks."""
@@ -116,7 +140,7 @@ class coap_client():
         start_time_coap = time.time()
         request = Message(code=PUT, payload=payload)
         # These direct assignments are an alternative to setting the URI like in
-        # the GET example:
+        # the GET function
         request.opt.uri_host = '10.0.0.17'
         request.opt.uri_path = ("other", "block")
 

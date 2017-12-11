@@ -1,3 +1,17 @@
+/**
+ *  @file websocket.js
+ *  @brief This file contains the client side implementation function of the websocket
+ *
+ *  @author  Arunsundar Kannan / Akshit shah
+ *  @date    10 November2017
+ *  
+ */
+
+
+
+
+
+
 //Reference: http://blog.teamtreehouse.com/an-introduction-to-websockets
 
 
