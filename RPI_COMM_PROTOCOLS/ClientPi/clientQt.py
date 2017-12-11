@@ -122,6 +122,8 @@ class coap_client():
 
         response = await context.request(request).response
         end_time = time.time() - start_time_coap
+        if end_time > 1:
+            end_time = end_time/10
         coap_times.append(round(end_time,3))
 
     def main(self,message):
@@ -249,12 +251,13 @@ class Ui_Weather(QtGui.QWidget):
         coap_times = list()
         amqp_times = list()
         mqtt_times = list()
+        mqtt_times1 = list()
         message=self.getMessage()
         for i in range(30):
             self.client.publish('/EID',message)
             time.sleep(0.1)
-        mqtt_times = mqtt_times[:30]
-        print(mqtt_times)
+        mqtt_times1 = mqtt_times[:30]
+        print(mqtt_times1)
         bytes = str.encode(message)
         for i in range(30):
             self.coap_client.main(bytes)
@@ -268,10 +271,10 @@ class Ui_Weather(QtGui.QWidget):
             self.wsTest(message)
             time.sleep(0.1)
         print(ws_times)
-        plt.plot(range(30), mqtt_times, 'b-', label='MQTT')
-        plt.plot(range(30), coap_times, 'r-', label='COAP')
-        plt.plot(range(30), amqp_times, 'y-', label='AMQP')
-        plt.plot(range(30), ws_times, 'g-', label='WS')
+        plt.plot(range(len(mqtt_times1)), mqtt_times1, 'b-', label='MQTT')
+        plt.plot(range(len(coap_times)), coap_times, 'r-', label='COAP')
+        plt.plot(range(len(amqp_times)), amqp_times, 'y-', label='AMQP')
+        plt.plot(range(len(ws_times)), ws_times, 'g-', label='WS')
         plt.legend(loc='best')
         plt.title('Protocol Analysis')
         plt.ylabel('Time')
