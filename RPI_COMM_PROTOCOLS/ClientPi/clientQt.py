@@ -9,7 +9,10 @@ import matplotlib
 import Adafruit_DHT
 import threading
 import paho.mqtt.client as mqtt
-
+from websocket import create_connection
+from aiocoap import *
+import pika
+import asyncio
 from PyQt4 import QtCore, QtGui
 
 try:
@@ -44,10 +47,89 @@ def on_message(client,obj,msg):
     elapsed_time = time.time() - start_time_mqtt
     #print(elapsed_time)
     mqtt_times.append(round(elapsed_time,3))
+
+class amqp_init:
+    def __init__(self):
+        self.channel = None
+        self.exchange = None
+        self.connection = None
+        self.queue = None
+        self.consume_tag=None
+        
+    def amqp_on_connection_open(self, unused_connection):
+        print("connection opened")
+        self.channel=self.connection.channel(on_open_callback=self.amqp_on_channel_open)
+        
+    def amqp_on_channel_open(self,ch):
+        print("channel opened")
+        self.exchange = self.channel.exchange_declare(self.amqp_on_exchange_declareok,"eid_exchange",'topic')
+        
+    def amqp_on_exchange_declareok(self,unused_frame):
+        print("exchange declared")
+        self.queue= self.channel.queue_declare(self.amqp_on_queue_declareok, 'eid_queue')
+        
+    def amqp_on_queue_declareok(self,method_frame):
+        print("queue declared")
+        self.channel.queue_bind(self.amqp_on_bindok, 'eid_queue','eid_exchange', 'example.text')
+        
+    def amqp_on_bindok(self,unused_frame):
+        print("binded with the queue")
+        self.consume_tag = self.channel.basic_consume(self.amqp_on_message,'eid_queue')
+        
+    def establish_conn(self):
+        self.connection = pika.SelectConnection(pika.URLParameters('amqp://eid:eid@10.0.0.17:5672'),on_open_callback=self.amqp_on_connection_open,)
+        self.connection.ioloop.start()
+        
+    def publish_string(self,string):
+        properties = pika.BasicProperties(app_id='client',content_type='application/json')
+        global start_time_amqp
+        start_time_amqp= time.time()
+        self.channel.basic_publish('eid_exchange','example.text',string,properties)
+        
+    def amqp_on_message(self, unused_channel, basic_deliver, properties, body):
+        global start_time_amqp
+        global amqp_times
+        if(properties.app_id == 'server'):
+            stop_time = time.time()-start_time_amqp
+            amqp_times.append(round(stop_time,3))
+            #print("stop time: ",stop_time)
+            #print(properties.app_id)
+            self.channel.basic_ack(basic_deliver.delivery_tag)
+            #print("got message: %s", body)
+
     
+class coap_client():
+    async def send(self,message):
+        """Perform a single PUT request to localhost on the default port, URI
+        "/other/block". The request is sent 2 seconds after initialization.
+
+        The payload is bigger than 1kB, and thus sent as several blocks."""
+        global start_time_coap
+        global coap_times
+        context = await Context.create_client_context()
+
+        #await asyncio.sleep(2)
+
+        payload = message
+        start_time_coap = time.time()
+        request = Message(code=PUT, payload=payload)
+        # These direct assignments are an alternative to setting the URI like in
+        # the GET example:
+        request.opt.uri_host = '10.0.0.17'
+        request.opt.uri_path = ("other", "block")
+
+        response = await context.request(request).response
+        end_time = time.time() - start_time_coap
+        coap_times.append(round(end_time,3))
+
+    def main(self,message):
+        asyncio.get_event_loop().run_until_complete(self.send(message))
 
 ####### QT GUI FOR  MEASURING WEATHER ###############
 class Ui_Weather(QtGui.QWidget):
+    coap_client = coap_client()
+    amqp_client = amqp_init()
+    
     def publish_thread(self):
         global start_time
         self.client = mqtt.Client()
@@ -56,6 +138,14 @@ class Ui_Weather(QtGui.QWidget):
         self.client.on_publish = on_publish
         self.client.on_message = on_message
         self.client.loop_start()
+    
+    def wsTest(self,message):
+        ws = create_connection("ws://10.0.0.17:8888/ws")
+        print("Connection Established!!")
+        ws.send(message)
+        result =  ws.recv()
+        print("Received '%s'" % result)
+        ws.close()
     
     # Creating Instance
     def __init__(self):
@@ -77,6 +167,8 @@ class Ui_Weather(QtGui.QWidget):
         self.setupUi(self)
         self.mqtt_thread = threading.Thread(target = self.publish_thread,name='mqtt_thread')
         self.mqtt_thread.start()
+        self.amqp_thread = threading.Thread(target = self.amqp_client.establish_conn,name='amqp_thread')
+        self.amqp_thread.start()
         
     # Setting up UI
     def setupUi(self, Weather):
@@ -158,6 +250,12 @@ class Ui_Weather(QtGui.QWidget):
         self.client.publish('/EID',message)
         time.sleep(0.1)
         print(mqtt_times)
+        bytes = str.encode(message)
+        self.coap_client.main(bytes)
+        print(coap_times)
+        self.amqp_client.publish_string(message)
+        time.sleep(0.1)
+        print(amqp_times)
     
     def cToF(self):
         self.cFlag = False

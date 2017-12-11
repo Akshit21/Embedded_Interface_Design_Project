@@ -6,11 +6,24 @@ import matplotlib.pyplot as plt
 import Adafruit_DHT
 import threading
 import gspread
+import logging
+import argparse
 from oauth2client.service_account import ServiceAccountCredentials
 import paho.mqtt.client as mqtt
+import tornado.httpserver
+import tornado.websocket
+import tornado.ioloop
+import tornado.web
+import socket
+import asyncio
+
+import aiocoap.resource as resource
+import aiocoap
+import pika
+
+start_time = 0
 
 from PyQt4 import QtCore, QtGui
-
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
@@ -266,8 +279,161 @@ def mqtt_connection_thread():
     mqttc.on_subscribe = on_subscribe
     mqttc.connect("10.0.0.17", 1883, 60)
     mqttc.subscribe("/EID", 0)
-    
     mqttc.loop_forever()
+
+# Creating class handlers
+class WSHandler(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print ('new connection')
+   #  Receiving messages from client
+    def on_message(self, message):
+        print ('message received:  %s' % message)
+        self.write_message(message)
+
+    #Closing the client connection
+    def on_close(self):
+        print ('connection closed')
+
+    def check_origin(self, origin):
+        return True
+
+
+application = tornado.web.Application([
+    (r'/ws', WSHandler)
+])
+
+def ws_connection_thread():
+    http_server = tornado.httpserver.HTTPServer(application)
+    http_server.listen(8888)
+    myIP = socket.gethostbyname(socket.gethostname())
+    print ('*** Websocket Server Started at %s***' % myIP)
+    tornado.ioloop.IOLoop.instance().start()
+    
+class BlockResource(resource.Resource):
+    """Example resource which supports the GET and PUT methods. It sends large
+    responses, which trigger blockwise transfer."""
+
+    def __init__(self):
+        super().__init__()
+
+    async def render_get(self, request):
+        return aiocoap.Message(payload=self.content)
+
+    async def render_put(self, request):
+        print('PUT payload: %s' % request.payload)
+        return aiocoap.Message(code=aiocoap.CHANGED, payload=request.payload)
+
+
+class SeparateLargeResource(resource.Resource):
+    """Example resource which supports the GET method. It uses asyncio.sleep to
+    simulate a long-running operation, and thus forces the protocol to send
+    empty ACK first. """
+
+    def get_link_description(self):
+        # Publish additional data in .well-known/core
+        return dict(**super().get_link_description(), title="A large resource")
+
+    async def render_get(self, request):
+        await asyncio.sleep(3)
+
+        payload = "Three rings for the elven kings under the sky, seven rings "\
+                "for dwarven lords in their halls of stone, nine rings for "\
+                "mortal men doomed to die, one ring for the dark lord on his "\
+                "dark throne.".encode('ascii')
+        return aiocoap.Message(payload=payload)
+
+class TimeResource(resource.ObservableResource):
+    """Example resource that can be observed. The `notify` method keeps
+    scheduling itself, and calles `update_state` to trigger sending
+    notifications."""
+
+    def __init__(self):
+        super().__init__()
+
+        self.handle = None
+
+    def notify(self):
+        self.updated_state()
+        self.reschedule()
+
+    def reschedule(self):
+        self.handle = asyncio.get_event_loop().call_later(5, self.notify)
+
+    def update_observation_count(self, count):
+        if count and self.handle is None:
+            print("Starting the clock")
+            self.handle = self.reschedule()
+        if count == 0 and self.handle:
+            print("Stopping the clock")
+            self.handle.cancel()
+            self.handle = None
+
+    async def render_get(self, request):
+        payload = datetime.datetime.now().\
+                strftime("%Y-%m-%d %H:%M").encode('ascii')
+        return aiocoap.Message(payload=payload)
+
+# logging setup
+
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("coap-server").setLevel(logging.DEBUG)
+
+class coap_main():
+    def coap_conn(self):
+        # Resource tree creation
+        root = resource.Site()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        root.add_resource(('.well-known', 'core'),
+                resource.WKCResource(root.get_resources_as_linkheader))
+        root.add_resource(('time',), TimeResource())
+        root.add_resource(('other', 'block'), BlockResource())
+        root.add_resource(('other', 'separate'), SeparateLargeResource())
+
+        asyncio.Task(aiocoap.Context.create_server_context(root))
+        asyncio.get_event_loop().run_forever()
+        
+class amqp_init:
+    def __init__(self):
+        self.channel = None
+        self.exchange = None
+        self.connection = None
+        self.queue = None
+        self.consume_tag=None
+        
+    def amqp_on_connection_open(self, unused_connection):
+        print("connection opened")
+        self.channel=self.connection.channel(on_open_callback=self.amqp_on_channel_open)
+        
+    def amqp_on_channel_open(self,ch):
+        print("channel opened")
+        self.exchange = self.channel.exchange_declare(self.amqp_on_exchange_declareok,"eid_exchange",'topic')
+        
+    def amqp_on_exchange_declareok(self,unused_frame):
+        print("exchange declared")
+        self.queue= self.channel.queue_declare(self.amqp_on_queue_declareok, 'eid_queue')
+        
+    def amqp_on_queue_declareok(self,method_frame):
+        print("queue declared")
+        self.channel.queue_bind(self.amqp_on_bindok, 'eid_queue','eid_exchange', 'example.text')
+        
+    def amqp_on_bindok(self,unused_frame):
+        print("binded with the queue")
+        self.consume_tag = self.channel.basic_consume(self.amqp_on_message,'eid_queue')
+        
+    def establish_conn(self):
+        self.connection = pika.SelectConnection(pika.URLParameters('amqp://eid:eid@10.0.0.17:5672'),on_open_callback=self.amqp_on_connection_open,)
+        self.connection.ioloop.start()
+        
+    def publish_string(self,string):
+        properties = pika.BasicProperties(app_id='server',content_type='application/json')
+        self.channel.basic_publish('eid_exchange','example.text',string,properties)
+        
+    def amqp_on_message(self, unused_channel, basic_deliver, properties, body):
+        if(properties.app_id == 'client'):
+            self.channel.basic_ack(basic_deliver.delivery_tag)
+            print(properties.app_id)
+            self.publish_string(body)
 
 if __name__ == "__main__":
     import sys
@@ -277,5 +443,13 @@ if __name__ == "__main__":
     ui.setupUi(weatherGui)
     mqtt_thread = threading.Thread(target = mqtt_connection_thread, name='mqtt_thread')
     mqtt_thread.start()
+    ws_thread = threading.Thread(target = ws_connection_thread, name='ws_thread')
+    ws_thread.start()
+    coap_main = coap_main()
+    coap_thread = threading.Thread(target= coap_main.coap_conn, name='coap_thread')
+    coap_thread.start()
+    amqp = amqp_init()
+    amqp_thread = threading.Thread(target = amqp.establish_conn,name='amqp_thread')
+    amqp_thread.start()
     weatherGui.show()
     sys.exit(app.exec_())
